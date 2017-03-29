@@ -8,54 +8,53 @@ public class LoginPage
 {
 	void login(Connection con) throws SQLException
 	{
-		System.out.println("Enter your choice \n1) to login as Student \n2) to login as Professor \n3) to login as  a University Person\n");
 		Scanner sc = new Scanner(System.in);
-		
-		int choice = sc.nextInt();
 		String user="";
 		String pass="";
+		String type = "";
+		int id=0;
 		
-		
-		switch(choice)
-		{
-		case 1:
-			System.out.println("Enter Username\n");
+			System.out.println("Enter Username: ");
 			user=sc.next();
-			System.out.println("Enter Pass\n");
+			System.out.println("Enter Password: ");
 			pass=sc.next();
-			
-			PreparedStatement p = con.prepareStatement("Select id from login where username=? AND password=? AND type=?");
-			
-			p.setString(1, user);
-			p.setString(2, pass);
-			p.setString(3, "Student");
-			ResultSet rs = p.executeQuery();
-			
-			int sid=0;
-			
-			if(!rs.isBeforeFirst())
+			System.out.println();
+			PreparedStatement p = con.prepareStatement("Select id, type from login where username=? AND password=?");
+			try
 			{
-				System.out.println("Invalid Login");
-				return;
+				p.setString(1, user);
+				p.setString(2, pass);
+				ResultSet rs = p.executeQuery();
+				if(!rs.isBeforeFirst())
+				{
+					System.out.println("Invalid Login");
+					return;
+				}
+				while(rs.next())
+				{
+					id = rs.getInt(1);
+					type=rs.getString(2);
+				}
 			}
-			while(rs.next())
+			finally
 			{
-				 sid=rs.getInt(1);
+				p.close();
+				sc.close();
 			}
-			System.out.println(sid);
-			p.close();
-			
-			 p = con.prepareStatement("Select name from Person where id=?");
-			p.setInt(1, sid);
-			
-			rs = p.executeQuery();
-			String sname="";
-			while(rs.next())
+			if(type.equalsIgnoreCase("Student"))
+			{				
+				StudentPage sPage = new StudentPage();
+	        	sPage.start(con, id);
+			}
+			else if(type.equalsIgnoreCase("Professor"))
 			{
-				 sname=rs.getString(1);
+				ProfessorPage pPage = new ProfessorPage();
+	        	pPage.start(con, id);
 			}
-			System.out.println(sname);
-		}
-		
+			else
+			{
+				UniversityPage uPage = new UniversityPage();
+	        	uPage.start(con, id);
+			}
 	}
 }

@@ -1,63 +1,51 @@
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.*;
+import java.sql.*;
+import java.util.Scanner;
 
 
 public class TestConnection 
 {
-		// JDBC driver name and database URL
-
+	   // JDBC driver name and database URL
 	   static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
 	   static final String DB_URL = "jdbc:postgresql://postgres.c9mcz4kq3yti.us-west-2.rds.amazonaws.com:5432/OCMS";
 
-	   //  Database credentials
+	   // Database credentials
 	   static final String USER = "postgres";
 	   static final String PASS = "Akshay1!";
+	   
 	   public static void main( String args[] ) throws SQLException
 	     {
+		   Scanner s = new Scanner(System.in);
 	       Connection c = null;
 	       try 
 	       {
-	         Class.forName("org.postgresql.Driver");
-	        
+	         Class.forName("org.postgresql.Driver");	         
+	         c = DriverManager.getConnection(DB_URL,USER,PASS);
 	         
-	         c = DriverManager
-	                 .getConnection(DB_URL,USER,PASS);
-	         
-	         System.out.println("Opened database successfully");
-
-	         
-	         PreparedStatement p = c.prepareStatement("Select * from person");
-	         
-	         ResultSet rs = p.executeQuery();
-	         
-	         
-	         
-	         while(rs.next())
+	         System.out.println("Enter your choice \n1) Login \n2) Register \n");
+	         int choice = s.nextInt();
+	         switch(choice)
 	         {
-	        	 System.out.println(rs.getInt(1));
-	        	 System.out.println(rs.getString(2));
-	        	 System.out.println(rs.getString(3));
-	        	 System.out.println(rs.getString(4)+"\n");
-	        	 
-	         }
-	         
-	         LoginPage page = new LoginPage();
-	         page.login(c);
-	        
-	        
+	         case 1:
+	        	 LoginPage lPage = new LoginPage();
+	        	 lPage.login(c);
+		         break;
+	         case 2:
+	        	 RegisterPage rPage = new RegisterPage();
+	        	 rPage.register(c);
+		         break;
+		     default:
+		    	 System.out.println("Sorry you have entered the wrong choice!");
+	         } 
 	        
 	       } catch ( Exception e ) 
 	       {
-	         System.err.println( e.getClass().getName()+": "+ e.getMessage() );
+	         System.err.println(e.getClass().getName()+": "+ e.getMessage());
 	         System.exit(0);
 	       }
 	       finally
 	       {
 	    	   c.close();
+	    	   s.close();
 	       }
 	       
 	     }

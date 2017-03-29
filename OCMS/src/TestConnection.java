@@ -21,7 +21,7 @@ public class TestConnection
 	         Class.forName("org.postgresql.Driver");	         
 	         c = DriverManager.getConnection(DB_URL,USER,PASS);
 	         
-	         System.out.println("Enter your choice \n1) Login \n2) Register \n");
+	         System.out.println("Enter your choice \n1) Login \n2) Register \n3) Exit \n");
 	         int choice = s.nextInt();
 	         switch(choice)
 	         {
@@ -33,6 +33,9 @@ public class TestConnection
 	        	 RegisterPage rPage = new RegisterPage();
 	        	 rPage.register(c);
 		         break;
+	         case 3:
+	        	 System.out.println("You are exiting the system.");
+	        	 System.exit(0);
 		     default:
 		    	 System.out.println("Sorry you have entered the wrong choice!");
 	         } 

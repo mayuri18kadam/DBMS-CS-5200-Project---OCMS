@@ -169,8 +169,8 @@ public class RegisterPage
 			System.out.println();
 			
 			insPerson.setInt(1, id);
-			insPerson.setString(2, email);
-			insPerson.setString(3, name);
+			insPerson.setString(2, name);
+			insPerson.setString(3, email);
 			insPerson.setString(4, street);
 			insPerson.setString(5, city);
 			insPerson.setString(6, state);
@@ -224,7 +224,7 @@ public class RegisterPage
 		Scanner sc = new Scanner(System.in);
 		int id=0;
 		PreparedStatement getID = con.prepareStatement("Select max(id) from login");
-		PreparedStatement insLogin = con.prepareStatement("insert into Login values(?,?,?,'Professor')");
+		PreparedStatement insLogin = con.prepareStatement("insert into Login values(?,?,?,'Student')");
 		PreparedStatement insPerson = con.prepareStatement("insert into Person values(?,?,?,(?,?,?,?))");
 		PreparedStatement insStu = con.prepareStatement("insert into Student values(?)");
 		try
@@ -273,8 +273,8 @@ public class RegisterPage
 			System.out.println();
 			
 			insPerson.setInt(1, id);
-			insPerson.setString(2, email);
-			insPerson.setString(3, name);
+			insPerson.setString(2, name);
+			insPerson.setString(3, email);
 			insPerson.setString(4, street);
 			insPerson.setString(5, city);
 			insPerson.setString(6, state);

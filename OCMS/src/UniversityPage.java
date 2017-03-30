@@ -4,7 +4,7 @@ import java.util.Scanner;
 
 public class UniversityPage 
 {
-	public enum designation {Dean,Professor,Associate_Professor,Lecturer,Visiting_Scholar,Director,Associate_Director,TA,RA,GA,Part_time_faculty,Contractor}
+	
 	int id;
 	Address address;
 	String name;
@@ -50,7 +50,7 @@ public class UniversityPage
 
 	public void listCourses(Connection con, int id) throws SQLException
 	{
-		String query="Select c.id, c.name, cp.taughtby from course c, professorcourse cp where c.offeredby=? and c.id=cp.teaches order by c.id";
+		String query="Select c.id, c.name from course c where c.offeredby=?  order by c.id";
 		PreparedStatement p = con.prepareStatement(query);
 		p.setInt(1, id);
 		
@@ -63,22 +63,31 @@ public class UniversityPage
 		else
 		{
 			System.out.println(this.name+" offers the following courses at this time ");
-			System.out.println("id\t"+"name\t"+"professor");
+			System.out.println("id\t"+"name\t"+"\tprofessor");
 			while(rs.next())
 			{
-				System.out.print(rs.getInt(1)+"\t");
-				System.out.print(rs.getString(2)+"\t");
+				int cid = rs.getInt(1);
+				System.out.print(cid+"\t");
+				System.out.print(rs.getString(2)+"\t\t");
 				
-				int pid= rs.getInt(3);
+				PreparedStatement getProfessors = con.prepareStatement("Select taughtby from professorcourse where teaches=?");
+				getProfessors.setInt(1, cid);
+				ResultSet rpc = getProfessors.executeQuery();
+				
+				while(rpc.next())
+				{
+					
+				int pid = rpc.getInt(1);
 			    PreparedStatement p2 = con.prepareStatement("Select name from person where id=?" );
 			    p2.setInt(1, pid);
 			    ResultSet r2 = p2.executeQuery();
 			    while(r2.next())
 			    {
-			    	System.out.print(r2.getString(1)+"\n");
+			    	System.out.print(r2.getString(1)+"\t");
 			    	
 			    }
-				
+				}
+				System.out.println();
 			}
 			
 		}
@@ -99,12 +108,13 @@ public class UniversityPage
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter name for course");
 		
-		String name = sc.next();
 		
+		
+		String name = sc.nextLine();
 		System.out.println("Enter description for course");
 		
-		String description = sc.next();
-		
+		String description = sc.nextLine();
+
 		System.out.println("\nSelect a professor to teach this course ");
 		System.out.println("\nHere are a list of professors who are available ");
 				
@@ -147,14 +157,28 @@ public class UniversityPage
 			{
 				return;
 			}
+				
 				while(true)
 				{
-					System.out.println("Assign 1 more professor for this course, Enter id ");
-					sc.reset();
-					int pid= sc.nextInt();
-					if(validateProfessor(professors, pid))
+					int z=0;
+					System.out.println("Press 1 to assign 1 more professor for this course , Any other key to exit");
+					 z=sc.nextInt();
+					if(z==1)
 					{	
-					assignProfessor(conn, professors, cid,pid);
+						System.out.println("Enter Professor id ");
+					 int pid= sc.nextInt();
+					 if(validateProfessor(professors, pid))
+					 	{	
+						 assignProfessor(conn, professors, cid,pid);
+					 	}
+					 else
+					 {
+						 System.out.println("Invalid Professor id");
+					 }
+					}
+					else
+					{
+						return;
 					}
 				}
 			
@@ -197,6 +221,7 @@ public class UniversityPage
 		}
 		else
 		{
+			System.out.println("Invalid Professor id");
 			return 0;
 		}
 	}
@@ -240,8 +265,9 @@ public class UniversityPage
 		      
 
 		p.buildUniversity(c, 1);
-		p.listCourses(c, 1);
 		
+		p.listCourses(c, 1);
+		System.out.println("\n\nAdding a new course");
 		p.addCourse(c, 1);
 	}
 }

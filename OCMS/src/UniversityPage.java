@@ -102,6 +102,7 @@ public class UniversityPage
 		String name = sc.next();
 		
 		System.out.println("Enter description for course");
+		
 		String description = sc.next();
 		
 		System.out.println("\nSelect a professor to teach this course ");
@@ -140,27 +141,29 @@ public class UniversityPage
 				System.out.println("\n"+professors.get(i)+"\t"+r2.getString(1)+"\t"+r2.getString(2));
 				//System.out.println();
 			}
-			
-				System.out.println("\n Enter Professor id to assign a professor for this course");
-				int pid = sc.nextInt();
-				
-				if(!professors.contains(pid))
+		}	
+			int cid = insertCourse(conn, id, name, description, professors);
+			if(cid==0)
+			{
+				return;
+			}
+				while(true)
 				{
-					System.out.println("Invalid Professor Selected / No such professor");
-					return;
+					System.out.println("Assign 1 more professor for this course, Enter id ");
+					sc.reset();
+					int pid= sc.nextInt();
+					if(validateProfessor(professors, pid))
+					{	
+					assignProfessor(conn, professors, cid,pid);
+					}
 				}
-				else
-				{
-					query="INSERT INTO public.professorcourse( teaches, taughtby) VALUES (?, ?);";
-				}
-				
 			
 			
-		}
+		
 		
 	}
 	
-	private static void insertCourse(Connection con, int id, String name, String description) throws SQLException
+	private static int insertCourse(Connection con, int id, String name, String description, ArrayList<Integer> professors) throws SQLException
 	{
 		String query = "Select max(id) from course";
 		PreparedStatement getId = con.prepareStatement(query);
@@ -172,21 +175,53 @@ public class UniversityPage
 			cid=rs.getInt(1)+1;
 		}
 		
+		System.out.println("\n Enter Professor id to assign a professor for this course");
+		Scanner sc = new Scanner(System.in);
+		int pid = sc.nextInt();
+		
+		if(validateProfessor(professors, pid))
+		{	
+		
 		query="INSERT INTO course( id, name, description, offeredby) VALUES (?, ?, ?, ?)";
 		PreparedStatement insert = con.prepareCall(query);
-		insert.setInt(cid, 1);
+		insert.setInt(1, cid);
 		insert.setString(2, name);
 		insert.setString(3, description);
 		insert.setInt(4, id);
 		
 		insert.executeUpdate();
+		System.out.println("Course Successfully added");
+		assignProfessor(con, professors, cid, pid);
 		
+		return cid;
+		}
+		else
+		{
+			return 0;
+		}
 	}
 	
-	private static void assignProfessor(Connection con, ArrayList<Integer> professors, int id)
+	private static void assignProfessor(Connection con, ArrayList<Integer> professors, int cid, int pid) throws SQLException
 	{
 		
+		{
+			String query="INSERT INTO public.professorcourse( teaches, taughtby) VALUES (?, ?);";
+			PreparedStatement insertprof = con.prepareStatement(query);
+			insertprof.setInt(1, cid);
+			insertprof.setInt(2, pid);
+			
+			insertprof.executeUpdate();
+			
+			System.out.println("Professor Successfully added");
+		}
 	}
+	
+	private static boolean validateProfessor(ArrayList<Integer> professor , int pid)
+	{
+		return (professor.contains(pid));
+	}
+	
+	
 	// ONLY FOR UNIT TESTING OF UNIVERSITY FUNCTIONALITY
 	public static void main(String args[]) throws ClassNotFoundException, SQLException
 	{

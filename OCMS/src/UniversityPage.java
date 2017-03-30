@@ -30,15 +30,50 @@ public class UniversityPage
 		{
 			while(rs.next())
 			{
+				this.id=id;
 				String name = rs.getString(1);
 				String address= rs.getString(2);
 				
-				System.out.println(name);
+				this.name=name;
+				CommonFunctions cmn = new CommonFunctions();
+				String addressSplit[] = cmn.splitAddress(address);
+				int zip = Integer.parseInt(addressSplit[3]);
+				this.address = new Address(addressSplit[0], addressSplit[1], addressSplit[2],zip);
+				
 			}
 		}
 		
 	}
 
+	public void listCourses(Connection con, int id) throws SQLException
+	{
+		String query="Select * from course where offeredby=? order by id";
+		PreparedStatement p = con.prepareStatement(query);
+		p.setInt(1, id);
+		
+		ResultSet rs = p.executeQuery();
+		
+		if(!rs.isBeforeFirst())
+		{
+			System.out.println("No courses offered by "+this.name+" at this time");
+		}
+		else
+		{
+			System.out.println(this.name+" offers the following courses at this time ");
+			System.out.println("id\t"+"name");
+			while(rs.next())
+			{
+				System.out.print(rs.getInt(1)+"\t");
+				System.out.print(rs.getString(2)+"\n");
+			}
+			
+		}
+		
+		
+	}
+	
+	
+	// ONLY FOR UNIT TESTING OF UNIVERSITY FUNCTIONALITY
 	public static void main(String args[]) throws ClassNotFoundException, SQLException
 	{
 		UniversityPage p = new UniversityPage();
@@ -56,5 +91,8 @@ public class UniversityPage
 		      
 
 		p.buildUniversity(c, 1);
+		p.listCourses(c, 1);
+		
+		
 	}
 }

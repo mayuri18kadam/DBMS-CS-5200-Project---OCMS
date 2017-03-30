@@ -47,7 +47,7 @@ public class UniversityPage
 
 	public void listCourses(Connection con, int id) throws SQLException
 	{
-		String query="Select * from course where offeredby=? order by id";
+		String query="Select c.id, c.name, cp.taughtby from course c, professorcourse cp where c.offeredby=? and c.id=cp.teaches order by c.id";
 		PreparedStatement p = con.prepareStatement(query);
 		p.setInt(1, id);
 		
@@ -60,15 +60,30 @@ public class UniversityPage
 		else
 		{
 			System.out.println(this.name+" offers the following courses at this time ");
-			System.out.println("id\t"+"name");
+			System.out.println("id\t"+"name\t"+"professor");
 			while(rs.next())
 			{
 				System.out.print(rs.getInt(1)+"\t");
-				System.out.print(rs.getString(2)+"\n");
+				System.out.print(rs.getString(2)+"\t");
+				
+				int pid= rs.getInt(3);
+			    PreparedStatement p2 = con.prepareStatement("Select name from person where id=?" );
+			    p2.setInt(1, pid);
+			    ResultSet r2 = p2.executeQuery();
+			    while(r2.next())
+			    {
+			    	System.out.print(r2.getString(1)+"\n");
+			    	
+			    }
+				
 			}
 			
 		}
 		
+	}
+	
+	public void addCourse(Connection conn, int id)
+	{
 		
 	}
 	

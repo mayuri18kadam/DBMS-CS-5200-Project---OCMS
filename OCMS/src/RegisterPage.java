@@ -2,14 +2,16 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedList;
 import java.util.Scanner;
 
 public class RegisterPage 
 {
 	public enum designation {Dean,Professor,Associate_Professor,Lecturer,Visiting_Scholar,Director,Associate_Director,TA,RA,GA,Part_time_faculty,Contractor}
 	
-	public void register(Connection con) throws SQLException 
+	public void register(Connection con) throws Exception 
 	{
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter your choice: \n1) Student \n2) Professor \n3) University");
 		int choice = sc.nextInt();
@@ -31,8 +33,6 @@ public class RegisterPage
 		default:
 			System.out.println("Sorry you have entered the wrong choice!");
 		}
-		
-		sc.close();
 	}
 
 	private int registerUniversity(Connection con) throws SQLException 
@@ -114,15 +114,18 @@ public class RegisterPage
 		return id;		
 	}
 
-	private int registerProfessor(Connection con) throws SQLException 
+	private int registerProfessor(Connection con) throws Exception 
 	{
 		
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		int id=0;
 		PreparedStatement getID = con.prepareStatement("Select max(id) from login");
 		PreparedStatement insLogin = con.prepareStatement("insert into Login values(?,?,?,'Professor')");
 		PreparedStatement insPerson = con.prepareStatement("insert into Person values(?,?,?,(?,?,?,?))");
-		PreparedStatement insProf = con.prepareStatement("insert into Professor values(?,?,?::Designation)");
+		PreparedStatement selectDesg = con.prepareStatement("SELECT enum_range(NULL::designation)");
+		PreparedStatement insProf = con.prepareStatement("insert into  Professor values(?,?,CAST(? AS designation))");
+
 		try
 		{
 			ResultSet rs_getID = getID.executeQuery();
@@ -187,13 +190,24 @@ public class RegisterPage
 			
 			System.out.println("Enter University id that you work for: ");
 			int univ_id = sc.nextInt();
-			System.out.println("Enter designation: ");
-			String desg = sc.nextLine();
+			
+			ResultSet rs_selectDesg = selectDesg.executeQuery();
+			if(!rs_selectDesg.isBeforeFirst())
+			{
+				System.out.println("ERROR!!! There are no pre-fed designations is the system. Please contact the system admin!");
+			}
+			while(rs_selectDesg.next())
+			{
+				System.out.println(rs_selectDesg.getString(1));
+			}
+//			System.out.println("Enter designation: ");
+//			String desg = sc.nextLine();
 			System.out.println();
 			
 			insProf.setInt(1, id);
 			insProf.setInt(2, univ_id);
-			insProf.setString(3, desg);
+			insProf.setString(3, "Dean");
+//			insProf.setObject(3, desg);
 			int rs_insProf = insProf.executeUpdate();
 			if(rs_insProf<=0)
 			{
@@ -212,8 +226,8 @@ public class RegisterPage
 			getID.close();
 			insLogin.close();
 			insPerson.close();
+			selectDesg.close();
 			insProf.close();
-			sc.close();
 		}
 		return id;		
 	}

@@ -14,7 +14,8 @@ public class TestConnection
 	   
 	   public static void main( String args[] ) throws SQLException
 	     {
-		   Scanner s = new Scanner(System.in);
+		   @SuppressWarnings("resource")
+		Scanner s = new Scanner(System.in);
 	       Connection c = null;
 	       try 
 	       {
@@ -48,7 +49,6 @@ public class TestConnection
 	       finally
 	       {
 	    	   c.close();
-	    	   s.close();
 	       }
 	       
 	     }

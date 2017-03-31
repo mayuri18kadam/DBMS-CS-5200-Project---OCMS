@@ -1,13 +1,12 @@
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class LoginPage 
 {
-	void login(Connection con) throws SQLException
+	Scanner sc = new Scanner(System.in);
+	void login(Connection con) throws Exception
 	{
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		String user="";
 		String pass="";
@@ -39,7 +38,6 @@ public class LoginPage
 			finally
 			{
 				p.close();
-				sc.close();
 			}
 			if(type.equalsIgnoreCase("Student"))
 			{				

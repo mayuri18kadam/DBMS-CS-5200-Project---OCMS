@@ -205,7 +205,7 @@ public class StudentPage
 			String cid = sc.nextLine();
 			//System.out.println(cid);
 			gotoCourse(con,id,cid);
-		} else if(ans.equals("n") || ans.equals("N"))
+			} else if(ans.equals("n") || ans.equals("N"))
 			{
 				System.out.println("\n1) Go to the Home Page \n"
 						+ "2) Sign out\n");
@@ -284,18 +284,15 @@ public class StudentPage
 	{
 		Scanner sc = new Scanner(System.in);
 		
-		String allCourses = "Select c.name as courseName, c.cid as courseId, c.description as description, c.id as course, "
+		String allCourses = "Select c.name as courseName, c.cid as courseId, c.description as description, "
 				+ "u.name as univName, p.name as profName, pr.designation as designation "
 				+ "from course c, university u, professor pr, professorcourse pc, person p "
 				+ "where c.offeredby = u.id and pc.teaches=c.id and pc.taughtby=pr.id and pr.id=p.id and c.cid=?;";
-		
 		PreparedStatement ps = null;		
 		ps = con.prepareStatement(allCourses);
 		ps.setString(1, cid);
 
 		ResultSet rs = ps.executeQuery();
-		int pcourseId = 0;
-		String courseName = null;
 				
 		if(!rs.isBeforeFirst())
 		{
@@ -308,63 +305,23 @@ public class StudentPage
 			while(rs.next())
 			{				
 				System.out.println("\n" + rs.getString("courseName"));
-				System.out.println("About the course:  " + rs.getString("description"));
-				System.out.println("Offered by:  " + rs.getString("univName"));
-				System.out.println("Taught by:  " + rs.getString("profName") + " ," + rs.getString("designation"));
-				pcourseId = rs.getInt("course");
-				courseName = rs.getString("courseName");
-			}			
+				System.out.println("About the course:  " + rs.getString("description"));
+				System.out.println("Offered by:  " + rs.getString("univName"));
+				System.out.println("Taught by:  " + rs.getString("profName") + " ," + rs.getString("designation"));
+					
+			}
 		}
-		//System.out.println(pcourseId);
+		
 		System.out.println("\nDo you want to enroll now to this course?[y/n]");
 		String ans = sc.next();
 		
 		if(ans.equals("y") || ans.equals("Y"))
 		{
-			//sc.nextLine();
-			String enroll = "Insert into studentcourse(takes,takenby,status) "
-					+ "select ?,?,?"
-					+ "where not exists (Select * from studentcourse where takes=? and takenby=?);";
-			
-			PreparedStatement ps1 = null;	
-			ps1 = con.prepareStatement(enroll);
-			ps1.setInt(1, pcourseId);
-			ps1.setInt(2, id);
-			ps1.setString(3, "Active");
-			ps1.setInt(4, pcourseId);
-			ps1.setInt(5, id);
-
-			int count = ps1.executeUpdate();
-			
-			if(count>0)
-			{
-				System.out.println("Welcome to the course " + courseName
-				+ ". You can now access the course materials.");
-				System.out.println("\n1) Start Learning \n2)Go to Home Page "
-						+ "\n3) Sign Out");
-				
-				int ch = sc.nextInt();
-				
-				switch(ch)
-				{
-				case 1:
-					courseHome(con, id, cid);
-					break;
-				case 2:
-					start(con, id);
-					break;
-				case 3:
-					System.out.println("You have been signed out!");
-					System.exit(0);
-					break;
-				default:
-					System.out.println("Sorry! you have entered the wrong choice!");
-				}
-			} else
-			{
-				System.out.println("You are already enrolled for this course.");
-			}
-			//System.out.println(id +"\n" + pcourseId);	
+			sc.nextLine();
+			System.out.println("Working on this");
+			//String cid = sc.nextLine();
+			//System.out.println(cid);
+			gotoCourse(con,id,cid);
 			} else if(ans.equals("n") || ans.equals("N"))
 			{
 				System.out.println("\n1) Go to the Home Page \n"
@@ -389,12 +346,6 @@ public class StudentPage
 			}
 
 		sc.close();
-
-	}
-	
-	public void courseHome(Connection con, int id, String cid)
-	{
-		System.out.println("Course Home");
 	}
 	
 	// ONLY FOR UNIT TESTING OF STUDENTS FUNCTIONALITY
@@ -410,13 +361,12 @@ public class StudentPage
 			    final String PASS = "Akshay1!";
 			    
 			    Connection c = null;
-			    Class.forName("org.postgresql.Driver");	         
-			    c = DriverManager.getConnection(DB_URL,USER,PASS);
+			         Class.forName("org.postgresql.Driver");	         
+			         c = DriverManager.getConnection(DB_URL,USER,PASS);
 			     
-			//sp.start(c, 5);
+			sp.start(c, 1);
 			  //sp.viewAllCourses(c, 1);
 			 //sp.viewMyCourses(c, 1);
-			         sp.gotoCourse(c, 1, "CS 4560");
 			
 			
 		}

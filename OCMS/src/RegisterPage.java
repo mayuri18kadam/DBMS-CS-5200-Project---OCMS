@@ -218,9 +218,8 @@ public class RegisterPage
 		return id;		
 	}
 
-	private int registerStudent(Connection con) throws SQLException 
-	{
-		
+	private int registerStudent(Connection con) throws SQLException
+	{	
 		Scanner sc = new Scanner(System.in);
 		int id=0;
 		PreparedStatement getID = con.prepareStatement("Select max(id) from login");

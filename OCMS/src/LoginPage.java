@@ -44,7 +44,7 @@ public class LoginPage
 			if(type.equalsIgnoreCase("Student"))
 			{				
 				StudentPage sPage = new StudentPage();
-	        	sPage.start(con, id);
+				sPage.start(con, id);
 			}
 			else if(type.equalsIgnoreCase("Professor"))
 			{

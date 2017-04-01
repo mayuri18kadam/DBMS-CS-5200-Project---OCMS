@@ -93,7 +93,9 @@ public class ProfessorPage
 		@SuppressWarnings("resource")
 		Scanner st = new Scanner(System.in);
 		PreparedStatement getID = con.prepareStatement("Select max(id) from Lecture");
-		PreparedStatement insLecture = con.prepareStatement("insert into Lecture values(?,?,?,?,CAST(? AS filetype),'Reading',?)");	
+		PreparedStatement selectfrmt = con.prepareStatement("SELECT enum_range(NULL::filetype)");
+//		PreparedStatement insLecture = con.prepareStatement("insert into Lecture values(?,?,?,?,CAST(? AS filetype),CAST(? AS lectureType),?)");	
+		PreparedStatement insLecture = con.prepareStatement("insert into Lecture values(?,?,?,?,CAST(? AS filetype),'Reading',?)");
 		try
 		{
 			ResultSet rs_getID = getID.executeQuery();
@@ -110,8 +112,19 @@ public class ProfessorPage
 			String topic = st.nextLine();
 			System.out.println("Enter filename: ");
 			String filename = st.nextLine();
-//			System.out.println("Enter filetype: ");
-//			String filetype = st.nextLine();
+			
+			ResultSet rs_selectfrmt = selectfrmt.executeQuery();
+			if(!rs_selectfrmt.isBeforeFirst())
+			{
+				System.out.println("ERROR!!! There are no pre-fed filetypes is the system. Please contact the system admin!");
+			}
+			while(rs_selectfrmt.next())
+			{
+				System.out.println(rs_selectfrmt.getString(1));
+			}
+			
+			System.out.println("Enter filetype from above: ");
+			String filetype = st.nextLine();
 //			System.out.println("Enter lecture type ('Reading' / 'Video'): ");
 //			String lectype = st.nextLine();
 			System.out.println("Enter topic description: ");
@@ -122,10 +135,8 @@ public class ProfessorPage
 			insLecture.setInt(2, c_id);
 			insLecture.setString(3, topic);
 			insLecture.setString(4, filename);
-//			insLecture.setObject(5, filetype);
-//			insLecture.setObject(6, lectype);
-			insLecture.setString(5, ".pdf");
-//			insLecture.setString(6, "Reading");
+			insLecture.setString(5, filetype.toString());
+//			insLecture.setString(6, lectype.toString());
 			insLecture.setString(6, topicdesc);
 			int rs_insLecture = insLecture.executeUpdate();
 			if(rs_insLecture<=0)

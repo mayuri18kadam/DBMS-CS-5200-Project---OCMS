@@ -94,6 +94,121 @@ public class UniversityPage
 		
 	}
 	
+	
+	public void addP(Connection conn, int id) throws SQLException
+	{
+		Scanner sc = new Scanner(System.in);
+		
+		System.out.println("You are about to hire a new Professor for "+this.name);
+		System.out.println("Here is the list of all existing professors in the database ");
+		
+		ArrayList<Integer> allProfessors = new ArrayList<>();
+		
+		String query= "Select p.id , p1.name, p.designation from professor p , person p1 where p.id = p1.id";
+		
+		PreparedStatement getProfName = conn.prepareStatement(query);
+		
+		ResultSet rs = getProfName.executeQuery();
+		
+		while(rs.next())
+		{
+			int pid = rs.getInt(1);
+			
+			allProfessors.add(pid);
+			
+			System.out.println(pid);
+			System.out.println(rs.getString(2));
+			System.out.println(rs.getString(3));
+		}
+		
+		
+		while(true)
+		{
+			System.out.println("Press 1 to hire existing professor Press 2 to add a new Professor press 3 to exit");
+			int choice;
+			choice = sc.nextInt();
+			
+			if(choice==1)
+			{
+				addExistingProfessor(conn, sc, allProfessors);
+			}
+			if(choice==2)
+			{
+				
+			}
+			if(choice==3)
+			{
+				return;
+			}
+			else
+			{
+				System.out.println("Invalid Choice");
+			}
+		}
+		
+		
+	}
+	
+	private void addNewProfessor(Connection conn)
+	{
+		System.out.println("You are about to add a new Professor");
+		
+		
+		
+	}
+	
+	private void addExistingProfessor(Connection conn , Scanner sc, ArrayList<Integer> allProf) throws SQLException
+	{
+		String query= "Select p.id , p1.name, p.designation from professor p , person p1 where p.id = p1.id and p.worksfor=?";
+		
+		Scanner s = new Scanner(System.in);
+		
+		ArrayList<Integer> currentProfessor= new ArrayList<>();
+		
+		PreparedStatement getProfName = conn.prepareStatement(query);
+		getProfName.setInt(1, this.id);
+		ResultSet rs = getProfName.executeQuery();
+		
+		
+		while(rs.next())
+		{
+			int pid = rs.getInt(1);
+			
+			currentProfessor.add(pid);	
+		}
+		
+		System.out.println("Enter Professor id you want to hire");
+		int pid = sc.nextInt();
+		
+		if(currentProfessor.contains(pid))
+		{
+			System.out.println("This professor already works for "+this.name);
+		}
+		
+		if(!allProf.contains(pid))
+		{
+			System.out.println("No such Professor in the database");
+		}
+		else
+		{
+			System.out.println(this.id);
+			System.out.println("Assign a designation for a professor, Enter one of ");
+			System.out.println("Dean,Professor,Associate_Professor,Lecturer,Visiting Scholar,Director,Associate Director,TA,RA,GA,Part time faculty,Contractor");
+			String designtion = s.nextLine();
+			
+			PreparedStatement p = conn.prepareStatement("INSERT INTO public.professor( id, worksfor, designation) VALUES (?, ?, CAST(? AS designation));");
+			
+			p.setInt(1, pid);
+			p.setInt(2, this.id);
+			p.setString(3, designtion);
+			
+			p.executeUpdate();
+			
+			System.out.println("Professor inserted successfully");
+		}
+		
+	}
+	
 	public void addProfessor(Connection conn, int id) throws SQLException
 	{
 		
@@ -281,12 +396,14 @@ public class UniversityPage
 		         c = DriverManager.getConnection(DB_URL,USER,PASS);
 		      
 
-	//	p.buildUniversity(c, 1);
+		p.buildUniversity(c, 1);
 		
 	//	p.listCourses(c, 1);
 		System.out.println("\n\nAdding a new course");
 	//	p.addCourse(c, 1);
 		
-		p.addProfessor(c, 1);
+	//	p.addProfessor(c, 1);
+		
+		p.addP(c, 1);
 	}
 }

@@ -114,7 +114,7 @@ public class RegisterPage
 		return id;		
 	}
 
-	private int registerProfessor(Connection con) throws Exception 
+	public int registerProfessor(Connection con) throws Exception 
 	{
 		
 		@SuppressWarnings("resource")

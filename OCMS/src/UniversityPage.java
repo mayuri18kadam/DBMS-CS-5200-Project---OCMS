@@ -97,9 +97,26 @@ public class UniversityPage
 	public void addProfessor(Connection conn, int id) throws SQLException
 	{
 		
-		PreparedStatement p = conn.prepareStatement("INSERT INTO public.professor( id, worksfor, designation) VALUES (10, 1, CAST(? AS designation));");
 		
-		p.setString(1, "Associate Director");
+		Scanner sc = new Scanner(System.in);
+		
+		PreparedStatement getProfId = conn.prepareStatement("select max(id) from professor");
+		ResultSet profid = getProfId.executeQuery();
+		
+		int pid=0;
+		while(profid.next())
+		{
+			pid=profid.getInt(1) + 1;
+		}
+		
+		System.out.println("Enter Designation ");
+		String designantion = sc.nextLine();
+		
+		PreparedStatement p = conn.prepareStatement("INSERT INTO public.professor( id, worksfor, designation) VALUES (11, ?, CAST(? AS designation));");
+		
+	//	p.setInt(1, pid);
+		p.setInt(1, id);
+		p.setString(2, designantion.toString());
 		p.executeUpdate();
 	}
 	
@@ -264,10 +281,12 @@ public class UniversityPage
 		         c = DriverManager.getConnection(DB_URL,USER,PASS);
 		      
 
-		p.buildUniversity(c, 1);
+	//	p.buildUniversity(c, 1);
 		
-		p.listCourses(c, 1);
+	//	p.listCourses(c, 1);
 		System.out.println("\n\nAdding a new course");
-		p.addCourse(c, 1);
+	//	p.addCourse(c, 1);
+		
+		p.addProfessor(c, 1);
 	}
 }

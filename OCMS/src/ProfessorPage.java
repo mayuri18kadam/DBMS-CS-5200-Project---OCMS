@@ -5,7 +5,6 @@ public class ProfessorPage
 {
 	Connection con=null;
 	int id = 0;
-	List<Lecture> l = new LinkedList<Lecture>();
 	
 	public void start(Connection con, int id) throws Exception 
 	{
@@ -61,14 +60,89 @@ public class ProfessorPage
 		}		
 	}
 
-	private void delLectures(int c_id) 
+	private void delLectures(int c_id) throws Exception 
 	{
-				
+		viewLectures(c_id);
+		@SuppressWarnings("resource")
+		Scanner st = new Scanner(System.in);
+		System.out.println("Enter the ocurse id which is to be deleted: ");
+		int id = st.nextInt();
+		PreparedStatement delID = con.prepareStatement("delete from Lecture where id=?");	
+		try
+		{
+			
+			delID.setInt(1, id);
+			int rs_delID = delID.executeUpdate();
+			if(rs_delID<=0)
+			{
+				System.out.println("Lecture could not be deleted..!");
+			}
+			else
+			{
+				System.out.println("You have deleted lecture successfully.");
+			}
+		}
+		finally
+		{
+			delID.close();
+		}		
 	}
 
-	private void addLectures(int c_id) 
+	private void addLectures(int c_id) throws Exception 
 	{
-				
+		@SuppressWarnings("resource")
+		Scanner st = new Scanner(System.in);
+		PreparedStatement getID = con.prepareStatement("Select max(id) from Lecture");
+		PreparedStatement insLecture = con.prepareStatement("insert into Lecture values(?,?,?,?,CAST(? AS filetype),'Reading',?)");	
+		try
+		{
+			ResultSet rs_getID = getID.executeQuery();
+			if(!rs_getID.isBeforeFirst())
+			{
+				id=0;
+			}
+			while(rs_getID.next())
+			{
+				 id=rs_getID.getInt(1) + 1;
+			}
+			
+			System.out.println("Enter topic: ");
+			String topic = st.nextLine();
+			System.out.println("Enter filename: ");
+			String filename = st.nextLine();
+//			System.out.println("Enter filetype: ");
+//			String filetype = st.nextLine();
+//			System.out.println("Enter lecture type ('Reading' / 'Video'): ");
+//			String lectype = st.nextLine();
+			System.out.println("Enter topic description: ");
+			String topicdesc = st.nextLine();
+			System.out.println();
+			
+			insLecture.setInt(1, id);
+			insLecture.setInt(2, c_id);
+			insLecture.setString(3, topic);
+			insLecture.setString(4, filename);
+//			insLecture.setObject(5, filetype);
+//			insLecture.setObject(6, lectype);
+			insLecture.setString(5, ".pdf");
+//			insLecture.setString(6, "Reading");
+			insLecture.setString(6, topicdesc);
+			int rs_insLecture = insLecture.executeUpdate();
+			if(rs_insLecture<=0)
+			{
+				System.out.println("Lecture could not be added..!");
+			}
+			else
+			{
+				System.out.println("You have added lecture successfully.");
+			}
+		}
+		finally
+		{
+			getID.close();
+			insLecture.close();
+		}
+		
 	}
 
 	private void viewLectures(int c_id) throws Exception 
@@ -84,13 +158,7 @@ public class ProfessorPage
 			}
 			while(rs_view.next())
 			{
-				Lecture lec = new Lecture(rs_view.getInt(1), rs_view.getString(2), rs_view.getString(3));
-				System.out.println(lec.id+") "+lec.topic+"\t -> \t"+lec.filename);
-				l.add(lec);
-			}
-			for(Lecture ltr : l)
-			{
-				System.out.println(ltr.id+") "+ltr.topic+"\t -> \t"+ltr.filename);
+				System.out.println((rs_view.getInt(1)+") "+rs_view.getString(2)+"\t -> \t"+rs_view.getString(3)));
 			}
 		}
 		finally

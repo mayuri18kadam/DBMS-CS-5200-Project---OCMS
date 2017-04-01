@@ -95,7 +95,7 @@ public class UniversityPage
 	}
 	
 	
-	public void addP(Connection conn, int id) throws SQLException
+	public void addP(Connection conn, int id) throws Exception
 	{
 		Scanner sc = new Scanner(System.in);
 		
@@ -134,7 +134,7 @@ public class UniversityPage
 			}
 			if(choice==2)
 			{
-				
+				addNewProfessor(conn);
 			}
 			if(choice==3)
 			{
@@ -149,11 +149,13 @@ public class UniversityPage
 		
 	}
 	
-	private void addNewProfessor(Connection conn)
+	private void addNewProfessor(Connection conn) throws Exception
 	{
 		System.out.println("You are about to add a new Professor");
 		
+		RegisterPage rp = new RegisterPage();
 		
+		rp.registerProfessor(conn, this.id);
 		
 	}
 	
@@ -380,7 +382,7 @@ public class UniversityPage
 	
 	
 	// ONLY FOR UNIT TESTING OF UNIVERSITY FUNCTIONALITY
-	public static void main(String args[]) throws ClassNotFoundException, SQLException
+	public static void main(String args[]) throws Exception
 	{
 		UniversityPage p = new UniversityPage();
 		

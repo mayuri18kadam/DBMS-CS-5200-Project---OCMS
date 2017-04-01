@@ -25,7 +25,7 @@ public class RegisterPage
 			id = registerStudent(con);
 			break;
 		case 2:
-			id = registerProfessor(con);
+		//	id = registerProfessor(con);
 			break;
 		case 3:
 			id = registerUniversity(con);
@@ -73,7 +73,7 @@ public class RegisterPage
 				System.out.println("You have created your Login information.");
 			}
 			
-			System.out.println("Enter name: ");
+			System.out.println("Enter name as Firstname  MiddleName LastName: ");
 			String name = sc.nextLine();
 			System.out.println("Enter Street: ");
 			String street = sc.nextLine();
@@ -114,7 +114,7 @@ public class RegisterPage
 		return id;		
 	}
 
-	public int registerProfessor(Connection con) throws Exception 
+	public int registerProfessor(Connection con, int uniID) throws Exception 
 	{
 		
 		@SuppressWarnings("resource")
@@ -124,7 +124,7 @@ public class RegisterPage
 		PreparedStatement insLogin = con.prepareStatement("insert into Login values(?,?,?,'Professor')");
 		PreparedStatement insPerson = con.prepareStatement("insert into Person values(?,?,?,(?,?,?,?))");
 		PreparedStatement selectDesg = con.prepareStatement("SELECT enum_range(NULL::designation)");
-		PreparedStatement insProf = con.prepareStatement("insert into  Professor values(?,?,CAST(? AS designation))");
+		PreparedStatement insProf = con.prepareStatement("INSERT INTO public.professor( id, worksfor, designation) VALUES (?, ?, CAST(? AS designation));");
 
 		try
 		{
@@ -188,8 +188,8 @@ public class RegisterPage
 				System.out.println("Enter more details..");
 			}
 			
-			System.out.println("Enter University id that you work for: ");
-			int univ_id = sc.nextInt();
+			//System.out.println("Enter University id that you work for: ");
+			//int univ_id = sc.nextInt();
 			
 			ResultSet rs_selectDesg = selectDesg.executeQuery();
 			if(!rs_selectDesg.isBeforeFirst())
@@ -200,14 +200,19 @@ public class RegisterPage
 			{
 				System.out.println(rs_selectDesg.getString(1));
 			}
-//			System.out.println("Enter designation: ");
-//			String desg = sc.nextLine();
+			System.out.println("Enter designation: ");
+			
+			Scanner sc1 = new Scanner(System.in);
+			
+			String desg = sc1.nextLine();
 			System.out.println();
 			
 			insProf.setInt(1, id);
-			insProf.setInt(2, univ_id);
-			insProf.setString(3, "Dean");
-//			insProf.setObject(3, desg);
+			insProf.setInt(2, uniID);
+//			insProf.setString(3, "Dean");
+			insProf.setString(3, desg);
+			
+			System.out.println("Desg ids "+desg);
 			int rs_insProf = insProf.executeUpdate();
 			if(rs_insProf<=0)
 			{
@@ -218,8 +223,8 @@ public class RegisterPage
 				System.out.println("You have registered successfully!");
 			}
 			
-			ProfessorPage pPage = new ProfessorPage();
-        	pPage.start(con, id);
+			//ProfessorPage pPage = new ProfessorPage();
+        	//pPage.start(con, id);
 		}
 		finally
 		{

@@ -50,7 +50,8 @@ public class ProfessorPage
 			break;
 			case 3: delLectures(c_id);
 			break;
-			case 4: viewForum(c_id);
+			case 4: CommonFunctions c = new CommonFunctions();
+					c.viewFollowup(con,c_id,id);
 			break;
 			default: System.out.println("You have entered the wrong option!");
 			}
@@ -60,95 +61,7 @@ public class ProfessorPage
 			getCourseIDName.close();
 		}		
 	}
-
-	private void viewForum(int c_id) throws Exception 
-	{
-		Scanner st = new Scanner(System.in);
-		PreparedStatement viewPost = con.prepareStatement("Select followup.partof, followup.id, followup.comments"
-				+ " from followup, forum, professorcourse, course"
-				+ " where followup.partof=Forum.id"
-				+ " and forum.partof = ?"
-				+ " and professorcourse.teaches = course.id"
-				+ " and professorcourse.taughtby = ?");	
-		try
-		{
-			viewPost.setInt(1, c_id);
-			viewPost.setInt(2, this.id);
-			ResultSet rs_viewPost = viewPost.executeQuery();			
-			if(!rs_viewPost.isBeforeFirst())
-			{
-				throw new Exception("There are no posts added for this course!");
-			}
-			while(rs_viewPost.next())
-			{
-				System.out.println(rs_viewPost.getInt(1)+"\t -> \t"+rs_viewPost.getString(3));
-			}
-			
-			System.out.println("Do you want to add any posts?(Y/N)");
-			String choice = st.nextLine();
-			if(choice.equalsIgnoreCase("Y"))
-			{
-				System.out.println("Enter the post id from above");
-				int p_id = st.nextInt();
-				addpost(c_id,p_id);
-			}
-			else if(choice.equalsIgnoreCase("N"))
-			{
-				// do nothing
-			}
-			else
-			{
-				System.out.println("You have entered the wrong option!");
-			}
-		}
-		finally
-		{
-			viewPost.close();
-		}	
-	}
-
-	private void addpost(int c_id, int p_id) throws Exception 
-	{
-		int f_id=0;
-		@SuppressWarnings("resource")
-		Scanner st = new Scanner(System.in);
-		PreparedStatement getID = con.prepareStatement("Select max(id) from followup");
-		PreparedStatement insFollowup = con.prepareStatement("insert into followup values(?,?,?)");
-		try
-		{
-			ResultSet rs_getID = getID.executeQuery();
-			if(!rs_getID.isBeforeFirst())
-			{
-				f_id=0;
-			}
-			while(rs_getID.next())
-			{
-				f_id=rs_getID.getInt(1) + 1;
-			}
-			
-			System.out.println("Enter post: ");
-			String comment = st.nextLine();
-			
-			insFollowup.setInt(1, f_id);
-			insFollowup.setString(2, comment);
-			insFollowup.setInt(3, p_id);
-			int rs_insFollowup = insFollowup.executeUpdate();
-			if(rs_insFollowup<=0)
-			{
-				System.out.println("post could not be added..!");
-			}
-			else
-			{
-				System.out.println("You have added post successfully.");
-			}
-		}
-		finally
-		{
-			getID.close();
-			insFollowup.close();
-		}				
-	}
-
+	
 	private void delLectures(int c_id) throws Exception 
 	{
 		viewLectures(c_id);

@@ -10,13 +10,18 @@ import com.sun.media.jfxmedia.events.VideoFrameRateListener;
 
 public class StudentPage 
 {
-	//Connection con = null;
+	Connection con = null;
 	int id;
 	String studName;
 	
+	//Student Home Page
 	public void start(Connection con, int id) throws Exception
 	{
-		this.id = id;
+		this.id = id; //Student id
+		
+		studName = fetchName(con, id);//Fetches student name
+
+		System.out.println("Welcome"+ studName);
 		
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter your choice: \n1) View My Courses"
@@ -38,12 +43,11 @@ public class StudentPage
 			break;
 		default:
 			System.out.println("Sorry! you have entered the wrong choice!");
-		}
-		
-		sc.close();
-		
+		}		
+		sc.close();		
 	}
 	
+	// Student's 'My course Page'
 	public void viewMyCourses(Connection con, int id) throws Exception {
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Which of your courses do you want to see?"
@@ -75,15 +79,18 @@ public class StudentPage
 		
 		sc.close();
 	}
-		
+	
+	// Student's all courses page
 	public void viewAllMyCourses(Connection con, int id) throws Exception 
 	{	
 		TreeMap<Integer, Integer> courseIdMapping = new TreeMap<Integer, Integer>();
-		fetchName(con,id);
 		int i=1;
+		
+		System.out.println("Student " + studName +" courses");
 
 		Scanner sc = new Scanner(System.in);
 		
+		// Select all the courses of user student
 		String myCourse = "Select c.name as courseName, c.id as pcourseId, u.name as univName, sc.status as scStatus"
 				+ " from course c, university u, student s, studentcourse sc "
 				+ "where s.id = ? and sc.takenby = s.id and sc.takes = c.id and c.offeredby = u.id;";
@@ -116,10 +123,10 @@ public class StudentPage
 			{
 				System.out.println("Press Course Number to go to that Course Home Page");
 				int cnum = sc.nextInt();
-				
-				
+								
 				if(courseIdMapping.containsKey(cnum))
 				{
+					// If student entered course is in his course database then select its course id
 					PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
 							+ "where c.id=?;");
 					ps4.setInt(1, courseIdMapping.get(cnum));
@@ -156,15 +163,18 @@ public class StudentPage
 		navigation(con,id);
 		sc.close();
 		}
-		
+	
+	// Student's Active Courses page
 	public void viewActiveCourses(Connection con, int id) throws Exception 
 	{
 		TreeMap<Integer, Integer> courseIdMapping = new TreeMap<Integer, Integer>();
-		fetchName(con,id);
 		int i=1;
 		String cid=null;
 		Scanner sc = new Scanner(System.in);
 		
+		System.out.println("Student " + studName +" courses");
+		
+		// Select all the active courses of user student
 		String activeCourse = "Select c.name as courseName, c.id as pcourseId, c.cid as cid, u.name as univName, sc.status as scStatus"
 				+ " from course c, university u, student s, studentcourse sc "
 				+ "where s.id = ? and sc.takenby = s.id and sc.takes = c.id and c.offeredby = u.id and sc.status=?;";
@@ -202,6 +212,7 @@ public class StudentPage
 								
 				if(courseIdMapping.containsKey(cnum))
 				{
+					// If student entered course number is in his active courses database then select its course id
 					PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
 							+ "where c.id=?;");
 					ps4.setInt(1, courseIdMapping.get(cnum));
@@ -238,15 +249,18 @@ public class StudentPage
 		navigation(con,id);
 		sc.close();
 	}
-	
+
+	// Student's Completed Courses page
 	public void viewCompletedCourses(Connection con, int id) throws Exception 
 	{
 		TreeMap<Integer, Integer> courseIdMapping = new TreeMap<Integer, Integer>();
-		fetchName(con,id);
 		int i=1;
 		String cid=null;
 		Scanner sc = new Scanner(System.in);
 		
+		System.out.println("Student " + studName +" courses");
+		
+		// Select all the completed courses of user student
 		String completedCourse = "Select c.name as courseName, c.id as pcourseId, u.name as univName, sc.status as scStatus"
 				+ " from course c, university u, student s, studentcourse sc "
 				+ "where s.id = ? and sc.takenby = s.id and sc.takes = c.id and c.offeredby = u.id and sc.status=?;";
@@ -284,6 +298,7 @@ public class StudentPage
 				
 				if(courseIdMapping.containsKey(cnum))
 				{
+					// If student entered course number is in his completed courses database then select its id
 					PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
 							+ "where c.id=?;");
 					ps4.setInt(1, courseIdMapping.get(cnum));
@@ -321,10 +336,12 @@ public class StudentPage
 		sc.close();
 	}
 	
+	// Display all the courses offered by OCMS
 	public void viewAllCourses(Connection con, int id) throws Exception 
 	{	
 		Scanner sc = new Scanner(System.in);
 		
+		// Select all courses offered by OCMS
 		String allCourses = "Select c.name as courseName, c.cid as courseId, u.name as univName, p.name as professorName "
 				+ "from course c, university u, professor pr, professorcourse pc, person p "
 				+ "where c.offeredby = u.id and pc.teaches=c.id and pc.taughtby=pr.id and pr.id=p.id;";
@@ -356,8 +373,7 @@ public class StudentPage
 			sc.nextLine();
 			System.out.println("Enter the course id of the course to see its details");
 			String cid = sc.nextLine();
-			//System.out.println(cid);
-			gotoCourse(con,id,cid);
+			gotoCourse(con,id,cid);  //Go to the selected course page that displays the course details
 		} else if(ans.equals("n") || ans.equals("N"))
 			{
 				System.out.println("\n1) Go Back"
@@ -378,7 +394,7 @@ public class StudentPage
 					System.exit(0);
 				default:
 					System.out.println("Sorry! you have entered the wrong choice!");
-					//navigation(con,id);
+					viewAllCourses(con, id);
 				}
 			} else
 			{	
@@ -388,11 +404,12 @@ public class StudentPage
 		sc.close();
 	}
 	
-	public void fetchName(Connection con, int id) throws SQLException 
+	// Select student name
+	public String fetchName(Connection con, int id) throws SQLException 
 	{
-		String studName = "Select p.name from person p, student s "
+		String sName = "Select p.name from person p, student s "
 				+ "where s.id=p.id and s.id = ?;";
-		PreparedStatement ps0 =con.prepareStatement(studName);
+		PreparedStatement ps0 =con.prepareStatement(sName);
 		ps0.setInt(1, id);
 		
 		ResultSet rs = ps0.executeQuery();
@@ -405,12 +422,13 @@ public class StudentPage
 		else
 		{
 			while (rs.next()) {
-				System.out.println("Student " + rs.getString(1) +" courses");
-				Scanner sc = new Scanner(System.in);
+				studName = rs.getString(1);				
 			}
 		}
+		return studName;
 	}
 	
+	// Common navigation function for view AllMyCourses, viewActiveCourses and viewCompletedCourses
 	public void navigation(Connection con, int id) throws Exception
 	{
 		Scanner sc = new Scanner(System.in);
@@ -437,10 +455,12 @@ public class StudentPage
 		sc.close();
 	}
 	
+	// Course Details Page
 	public void gotoCourse(Connection con, int id, String cid) throws Exception
 	{
 		Scanner sc = new Scanner(System.in);
 		
+		// Fetch selected course details
 		String course = "Select c.name as courseName, c.cid as courseId, c.description as description, c.id as course, "
 				+ "u.name as univName, p.name as profName, pr.designation as designation "
 				+ "from course c, university u, professor pr, professorcourse pc, person p "
@@ -459,8 +479,7 @@ public class StudentPage
 			System.out.println("No course of specified search found.");
 		}
 		else
-		{
-			
+		{			
 			if(rs.next())
 			{
 				pcourseId = rs.getInt("course");
@@ -476,7 +495,7 @@ public class StudentPage
 					System.out.println("Taught by:  " + rs.getString("profName") + " ," + rs.getString("designation"));
 				}
 				
-				TreeMap<Integer, Integer> lectrsMapping = new TreeMap<Integer, Integer>();
+				TreeMap<Integer, Integer> lectrsMapping = new TreeMap<Integer, Integer>(); //Mapping of lectures id to user's input 
 				lectrsMapping = viewLectures(con,id,cid,pcourseId,"allLectrs");						
 			}			
 		}
@@ -486,7 +505,7 @@ public class StudentPage
 		
 		if(ans.equals("y") || ans.equals("Y"))
 		{
-			//sc.nextLine();
+			//Enroll selected course 
 			String enroll = "Insert into studentcourse(takes,takenby,status) "
 					+ "select ?,?,?"
 					+ "where not exists (Select * from studentcourse where takes=? and takenby=?);";
@@ -556,18 +575,16 @@ public class StudentPage
 					System.exit(0);
 				default:
 					System.out.println("Sorry! you have entered the wrong choice!");
-					//navigation(con,id);
 				}
 			} else
 			{
 				System.out.println("Invalid input.");
 				gotoCourse(con, pcourseId, cid);
 			}
-
 		sc.close();
-
 	}
-	
+
+	// Course Home of selected course
 	public void courseHome(Connection con, int id, String cid, int pcourseId) throws Exception
 	{		
 		Scanner sc = new Scanner(System.in);
@@ -596,6 +613,7 @@ public class StudentPage
 				
 	}
 	
+	// Fetches lecture
  	public int fetchLecture(TreeMap<Integer,Integer> lectrsMapping)
 	{
 		Scanner sc = new Scanner(System.in);
@@ -613,10 +631,11 @@ public class StudentPage
 		return lid;
 	}
 	
+ 	// Display lectures of selected course
 	public TreeMap<Integer, Integer> viewLectures(Connection con, int id, String cid, int pcourseId, String cond) throws SQLException
 	{
-		TreeMap<Integer, Integer> sViewsViewedby = new TreeMap<Integer, Integer>();
-		TreeMap<Integer, Integer> lectrsMap = new TreeMap<Integer, Integer>();
+		TreeMap<Integer, Integer> sViewsViewedby = new TreeMap<Integer, Integer>(); //Map lecture's views to lecture's viewedby
+		TreeMap<Integer, Integer> lectrsMap = new TreeMap<Integer, Integer>();  //Map lecture's id to student's available input
 		
 		String lectr = "Select l.id as lid, l.topic as topic, l.lecturetype as type, l.topicdescription as desc "
 				+ "from lecture l, course c "
@@ -694,6 +713,7 @@ public class StudentPage
 		return lectrsMap;
 	}
 	
+	// Insert viewed lecture in database
 	public void viewLectrsChoice(Connection con, String cid, int id, int pcourseId, TreeMap<Integer, Integer> lectrsMapping) throws Exception
 	{
 		Scanner sc = new Scanner(System.in);
@@ -706,6 +726,7 @@ public class StudentPage
 			
 			int lid = fetchLecture(lectrsMapping);	
 			
+			// update lecture views data
 			String lectrViewed = "Insert into studentlecture(views,viewedby)"
 					+ "select ?,?"
 					+ "where not exists (Select * from studentlecture where views=? and viewedby=?);";
@@ -719,7 +740,6 @@ public class StudentPage
 			
 			if(count>0)
 			{
-				//infoBox("Thank you for viewing this lecture", "Viewed");
 				System.out.println("Thank you for viewing this lecture");
 				
 			} else
@@ -738,11 +758,5 @@ public class StudentPage
 		}
 		sc.close();
 	}
-	
- 	public static void infoBox(String infoMessage, String titleBar)
-    {
-        JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
-    }
-	
 }
 

@@ -18,9 +18,17 @@ public class CommonFunctions
 		@SuppressWarnings("resource")
 		Scanner st = new Scanner(System.in);
 		CommonFunctions c = new CommonFunctions();
+		TreeMap<Integer,Integer> postIdMapping = new TreeMap<Integer,Integer>();
+		String whoPosted=null;
 		
 		PreparedStatement viewPost = con.prepareStatement("select f.post as post, f.id as postid, p.name as name from forum f, person p "
 				+ "where f.partof=? and f.askedby=p.id order by f.id desc;");
+		
+		PreparedStatement postedBy = con.prepareStatement("Select id as pid, designation as desig "
+				+ "from professor where id=?");
+		postedBy.setInt(1, p_id);
+		ResultSet rs1 = postedBy.executeQuery();
+		
 		try
 		{
 			viewPost.setInt(1, c_id);
@@ -36,8 +44,22 @@ public class CommonFunctions
 				while(rs_viewPost.next())
 				{
 					int postid = rs_viewPost.getInt("postid");
-					System.out.println("\n"+i+". "+rs_viewPost.getString("post")+"\nAsked by"+rs_viewPost.getString("name"));				
+					System.out.print("\n"+i+". "+rs_viewPost.getString("post")+"\nPosted by  ");
+					if(!rs1.isBeforeFirst())
+					{
+						whoPosted="Student";
+					} else
+					{
+						while(rs1.next())
+						{
+							whoPosted = rs1.getString("desig");
+						}
+					}
+						//System.out.println("\nThere are no posts added for this course!");
+					System.out.println(rs_viewPost.getString("name")+"   "+whoPosted);				
+					postIdMapping.put(i, postid);
 					i++;
+									
 					System.out.println("\nFollow ups");
 					String viewFol = "select fo.comments as comments, p.name as pname from followup fo, person p "
 							+ "where exists(select fo.id from forum f where fo.partof=f.id "
@@ -57,8 +79,8 @@ public class CommonFunctions
 					{
 						while(rs.next())
 						{
-							System.out.println(rs.getString("comments")+"\nReplied by"
-									+rs.getString("pname")+"\n");
+							System.out.print(rs.getString("comments")+"\nReplied by");
+							System.out.println(rs.getString("pname")+"   "+whoPosted+"\n");
 						}
 					}
 				}
@@ -73,12 +95,20 @@ public class CommonFunctions
 			case 1: addpostForum(con,c_id,p_id);
 				break;
 			case 2: System.out.println("Enter the post id from above");
-					int post_id = st.nextInt();
-					addpostFollowup(con,c_id,post_id,p_id);
+					int input = st.nextInt();
+					
+					if(postIdMapping.containsKey(input))
+					{
+						addpostFollowup(con,c_id,postIdMapping.get(input),p_id);
+					} else
+					{
+						return;
+					}					
 				break;
 			case 3:
 				return;
 			default: System.out.println("You have entered the wrong option!");
+				return;
 			}
 			}
 		}
@@ -94,7 +124,7 @@ public class CommonFunctions
 		@SuppressWarnings("resource")
 		Scanner st = new Scanner(System.in);
 		PreparedStatement getID = con.prepareStatement("Select max(id) from followup");
-		PreparedStatement insFollowup = con.prepareStatement("insert into followup values(?,?,?)");
+		PreparedStatement insFollowup = con.prepareStatement("insert into followup values(?,?,?,?)");
 		try
 		{
 			ResultSet rs_getID = getID.executeQuery();
@@ -107,20 +137,22 @@ public class CommonFunctions
 				f_id=rs_getID.getInt(1) + 1;
 			}
 			
-			System.out.println("Enter post: ");
+			System.out.println("Enter your reply: ");
 			String comment = st.nextLine();
 			
 			insFollowup.setInt(1, f_id);
 			insFollowup.setString(2, comment);
 			insFollowup.setInt(3, post_id);
+			insFollowup.setInt(4, p_id);
 			int rs_insFollowup = insFollowup.executeUpdate();
 			if(rs_insFollowup<=0)
 			{
-				System.out.println("post could not be added..!");
+				System.out.println("Follow up could not be added..!");
 			}
 			else
 			{
-				System.out.println("You have added post successfully.");
+				System.out.println("/nYou have added your reply successfully.");
+				viewFollowup(con, c_id, p_id);
 			}
 		}
 		finally
@@ -136,9 +168,8 @@ public class CommonFunctions
 		@SuppressWarnings("resource")
 		Scanner st = new Scanner(System.in);
 		PreparedStatement getID = con.prepareStatement("Select max(id) from forum");
-		PreparedStatement getID2 = con.prepareStatement("Select max(id) from followup");
-		PreparedStatement insForum = con.prepareStatement("insert into forum values(?,?,?,?)");
-		PreparedStatement insFollowup = con.prepareStatement("insert into followup values(?,?,?)");
+		PreparedStatement insForum = con.prepareStatement("insert into forum(id,post,askedby,partof) values(?,?,?,?)");
+
 		try
 		{
 			ResultSet rs_getID = getID.executeQuery();
@@ -151,24 +182,16 @@ public class CommonFunctions
 				f_id=rs_getID.getInt(1) + 1;
 			}
 			
-			ResultSet rs_getID2 = getID2.executeQuery();
-			if(!rs_getID2.isBeforeFirst())
-			{
-				f_id2=0;
-			}
-			while(rs_getID2.next())
-			{
-				f_id2=rs_getID2.getInt(1) + 1;
-			}
-			
 			System.out.println("Enter post: ");
-			String comment = st.nextLine();
+			String post = st.nextLine();
 			
 			insForum.setInt(1, f_id);
-			insForum.setString(2, comment);
+			insForum.setString(2, post);
 			insForum.setInt(3, p_id);
 			insForum.setInt(4, c_id);
+			
 			int rs_insForum = insForum.executeUpdate();
+			
 			if(rs_insForum<=0)
 			{
 				System.out.println("post could not be added..!");
@@ -176,12 +199,13 @@ public class CommonFunctions
 			else
 			{
 				System.out.println("You have added post successfully.");
+				viewFollowup(con, c_id, p_id);
 			}
 			
-			insFollowup.setInt(1, f_id2);
-			insFollowup.setString(2, comment);
-			insFollowup.setInt(3, f_id);
-			int rs_insFollowup = insFollowup.executeUpdate();
+//			insFollowup.setInt(1, f_id2);
+//			insFollowup.setString(2, comment);
+//			insFollowup.setInt(3, f_id);
+//			int rs_insFollowup = insFollowup.executeUpdate();
 //			if(rs_insFollowup<=0)
 //			{
 //				System.out.println("post could not be added..!");
@@ -193,7 +217,7 @@ public class CommonFunctions
 		}
 		finally
 		{
-			getID.close();
+			//getID.close();
 			insForum.close();
 		}				
 	}

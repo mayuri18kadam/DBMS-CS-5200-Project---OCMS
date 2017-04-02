@@ -19,30 +19,54 @@ public class CommonFunctions
 		Scanner st = new Scanner(System.in);
 		CommonFunctions c = new CommonFunctions();
 		
-		PreparedStatement viewPost = con.prepareStatement("Select followup.partof, followup.id, followup.comments"
-				+ " from followup, forum"
-				+ " where followup.partof=Forum.id"
-				+ " and forum.partof = ?");
-//				+ " and forum.askedby = ?");	
+		PreparedStatement viewPost = con.prepareStatement("select f.post as post, f.id as postid, p.name as name from forum f, person p "
+				+ "where f.partof=? and f.askedby=p.id order by f.id desc;");
 		try
 		{
 			viewPost.setInt(1, c_id);
-//			viewPost.setInt(2, p_id);
+			int i=1;
+			System.out.println("\nDiscussion Forums");
 			ResultSet rs_viewPost = viewPost.executeQuery();			
 			if(!rs_viewPost.isBeforeFirst())
 			{
-				System.out.println("There are no posts added for this course!");
+				System.out.println("\nThere are no posts added for this course!");
 				return;
-			}
-			while(rs_viewPost.next())
+			} else
 			{
-				System.out.println(rs_viewPost.getInt(1)+"\t -> \t"+rs_viewPost.getString(3));
+				while(rs_viewPost.next())
+				{
+					int postid = rs_viewPost.getInt("postid");
+					System.out.println("\n"+i+". "+rs_viewPost.getString("post")+"\nAsked by"+rs_viewPost.getString("name"));				
+					i++;
+					System.out.println("\nFollow ups");
+					String viewFol = "select fo.comments as comments, p.name as pname from followup fo, person p "
+							+ "where exists(select fo.id from forum f where fo.partof=f.id "
+							+ "and fo.partof=? and f.partof=?)"
+							+ " and fo.askedby=p.id order by fo.id desc;";
+					PreparedStatement viewFollowup = con.prepareStatement(viewFol);
+					viewFollowup.setInt(1, postid);
+					viewFollowup.setInt(2, c_id);
+					
+					ResultSet rs = viewFollowup.executeQuery();
+					
+					if(!rs.isBeforeFirst())
+					{
+						System.out.println("\nThere are no followups added for this course!");
+						//return;
+					} else
+					{
+						while(rs.next())
+						{
+							System.out.println(rs.getString("comments")+"\nReplied by"
+									+rs.getString("pname")+"\n");
+						}
+					}
+				}
 			}
-			
-			
+						
 			while(true)
 			{
-			System.out.println("Do you want to \n1) Add new post \n2) Add comment to existing post \n3)exit");
+			System.out.println("\nDo you want to \n1) Add new post \n2) Add comment to existing post \n3)exit");
 			int choice = st.nextInt();
 			switch(choice)
 			{

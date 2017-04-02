@@ -22,6 +22,8 @@ public class TestConnection
 	         Class.forName("org.postgresql.Driver");	         
 	         c = DriverManager.getConnection(DB_URL,USER,PASS);
 	         
+	         while(true)
+	         { 
 	         System.out.println("Enter your choice \n1) Login \n2) Register \n3) Exit \n");
 	         int choice = s.nextInt();
 	         switch(choice)
@@ -40,7 +42,7 @@ public class TestConnection
 		     default:
 		    	 System.out.println("Sorry you have entered the wrong choice!");
 	         } 
-	        
+	         }
 	       } catch ( Exception e ) 
 	       {
 	         System.err.println(e.getClass().getName()+": "+ e.getMessage());

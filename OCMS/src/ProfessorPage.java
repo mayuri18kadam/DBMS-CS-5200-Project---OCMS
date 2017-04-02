@@ -39,7 +39,10 @@ public class ProfessorPage
 			int c_id = st.nextInt();
 			System.out.println("You have selected course no: "+c_id);
 			
-			System.out.println("Choose your option for course no "+c_id+": \n1) View Lectures \n2) Add Lectures \n3) Delete Lectures \n4) View Forum");
+			
+			while(true)
+			{	
+			System.out.println("Choose your option for course no "+c_id+": \n1) View Lectures \n2) Add Lectures \n3) Delete Lectures \n4) View Forum \n5) Return");
 			int choice = st.nextInt();
 			
 			switch(choice)
@@ -53,9 +56,13 @@ public class ProfessorPage
 			case 4: CommonFunctions c = new CommonFunctions();
 					c.viewFollowup(con,c_id,id);
 			break;
+			case 5:
+				start(con, id);
 			default: System.out.println("You have entered the wrong option!");
+					 
 			}
-		}		
+			}	
+		}
 		finally
 		{			
 			getCourseIDName.close();
@@ -78,10 +85,12 @@ public class ProfessorPage
 			if(rs_delID<=0)
 			{
 				System.out.println("Lecture could not be deleted..!");
+				return;
 			}
 			else
 			{
 				System.out.println("You have deleted lecture successfully.");
+				return;
 			}
 		}
 		finally
@@ -104,6 +113,7 @@ public class ProfessorPage
 			if(!rs_getID.isBeforeFirst())
 			{
 				id=0;
+				
 			}
 			while(rs_getID.next())
 			{
@@ -144,10 +154,12 @@ public class ProfessorPage
 			if(rs_insLecture<=0)
 			{
 				System.out.println("Lecture could not be added..!");
+				return;
 			}
 			else
 			{
 				System.out.println("You have added lecture successfully.");
+				return;
 			}
 		}
 		finally
@@ -167,7 +179,8 @@ public class ProfessorPage
 			ResultSet rs_view = view.executeQuery();			
 			if(!rs_view.isBeforeFirst())
 			{
-				throw new Exception("There are no lectures added for this course!");
+				System.out.println("There are no lectures added for this course!");
+				return;
 			}
 			while(rs_view.next())
 			{

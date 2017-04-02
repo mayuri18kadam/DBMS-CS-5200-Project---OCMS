@@ -7,7 +7,6 @@ import java.util.Scanner;
 
 public class RegisterPage 
 {
-	public enum designation {Dean,Professor,Associate_Professor,Lecturer,Visiting_Scholar,Director,Associate_Director,TA,RA,GA,Part_time_faculty,Contractor}
 	
 	public void register(Connection con) throws Exception 
 	{
@@ -30,12 +29,12 @@ public class RegisterPage
 		case 3:
 			id = registerUniversity(con);
 			break;
-		default:
-			System.out.println("Sorry you have entered the wrong choice!");
+		default: return;
+//			System.out.println("Sorry you have entered the wrong choice!");
 		}
 	}
 
-	private int registerUniversity(Connection con) throws SQLException 
+	private int registerUniversity(Connection con) throws Exception 
 	{
 		Scanner sc = new Scanner(System.in);
 		int id=0;
@@ -237,7 +236,7 @@ public class RegisterPage
 		return id;		
 	}
 
-	private int registerStudent(Connection con) throws SQLException
+	private int registerStudent(Connection con) throws Exception
 	{	
 		Scanner sc = new Scanner(System.in);
 		int id=0;

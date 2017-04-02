@@ -8,15 +8,39 @@ public class UniversityPage
 	int id;
 	Address address;
 	String name;
-	public void start(Connection con, int id) 
+	public void start(Connection con, int id) throws Exception 
 	{
+		Scanner sc = new Scanner(System.in);
 		
+		buildUniversity(con, id);
+		while(true)
+		{
+		System.out.println("\nEnter a choice 1) To hire a new professor\n 2) Add a new course\n 3) List Courses\n 4) Sign Out");
+		int choice = sc.nextInt();
 		
+		switch(choice)
+		{
+		case 2: 
+			addCourse(con);
+		break;
+		case 1: 
+			addProfessor(con);
+		break;
+		case 3:
+			listCourses(con);
+		case 4:
+			return;
+				
+		default: System.out.println("You have entered the wrong option!");
+		}  
+		}
 		
 	}
 	
 	public void buildUniversity(Connection con, int id) throws SQLException
 	{
+		
+		Scanner sc = new Scanner(System.in);
 		
 		String query = "Select name, adrress from university where id = ?";
 		PreparedStatement p = con.prepareStatement(query);
@@ -45,20 +69,21 @@ public class UniversityPage
 				
 			}
 		}
-		
+		System.out.println("Welcome "+this.name);
 	}
 
-	public void listCourses(Connection con, int id) throws SQLException
+	public void listCourses(Connection con) throws SQLException
 	{
 		String query="Select c.id, c.name from course c where c.offeredby=?  order by c.id";
 		PreparedStatement p = con.prepareStatement(query);
-		p.setInt(1, id);
+		p.setInt(1, this.id);
 		
 		ResultSet rs = p.executeQuery();
 		
 		if(!rs.isBeforeFirst())
 		{
 			System.out.println("No courses offered by "+this.name+" at this time");
+			return;
 		}
 		else
 		{
@@ -95,7 +120,7 @@ public class UniversityPage
 	}
 	
 	
-	public void addP(Connection conn, int id) throws Exception
+	public void addProfessor(Connection conn) throws Exception
 	{
 		Scanner sc = new Scanner(System.in);
 		
@@ -116,9 +141,9 @@ public class UniversityPage
 			
 			allProfessors.add(pid);
 			
-			System.out.println(pid);
-			System.out.println(rs.getString(2));
-			System.out.println(rs.getString(3));
+			System.out.println(pid+") "+rs.getString(2)+"\t"+rs.getString(3));
+//			System.out.println(rs.getString(2));
+//			System.out.println(rs.getString(3));
 		}
 		
 		
@@ -132,11 +157,11 @@ public class UniversityPage
 			{
 				addExistingProfessor(conn, sc, allProfessors);
 			}
-			if(choice==2)
+			else if(choice==2)
 			{
 				addNewProfessor(conn);
 			}
-			if(choice==3)
+			else if(choice==3)
 			{
 				return;
 			}
@@ -185,11 +210,13 @@ public class UniversityPage
 		if(currentProfessor.contains(pid))
 		{
 			System.out.println("This professor already works for "+this.name);
+			return;
 		}
 		
 		if(!allProf.contains(pid))
 		{
 			System.out.println("No such Professor in the database");
+			return;
 		}
 		else
 		{
@@ -211,7 +238,7 @@ public class UniversityPage
 		
 	}
 	
-	public void addProfessor(Connection conn, int id) throws SQLException
+	/*public void addProfessor(Connection conn, int id) throws SQLException
 	{
 		
 		
@@ -236,8 +263,8 @@ public class UniversityPage
 		p.setString(2, designantion.toString());
 		p.executeUpdate();
 	}
-	
-	public void addCourse(Connection conn, int id) throws SQLException
+	*/
+	public void addCourse(Connection conn) throws SQLException
 	{
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter name for course");
@@ -254,7 +281,7 @@ public class UniversityPage
 				
 		String query="Select id from professor where worksfor=? order by id";
 		PreparedStatement p = conn.prepareStatement(query);
-		p.setInt(1, id);
+		p.setInt(1, this.id);
 		
 		ArrayList<Integer> professors = new ArrayList<>();
 		
@@ -271,13 +298,13 @@ public class UniversityPage
 				professors.add(rs.getInt(1));
 		
 			}
-		}	
+		}
 		
 		for(int i=0;i<professors.size(); i++)
 		{
-			PreparedStatement p2 = conn.prepareStatement("Select name, designation from person p, professor p1 where p.id=? and p.id = p1.id");
+			PreparedStatement p2 = conn.prepareStatement("Select distinct name, designation from person p, professor p1 where p.id=? and p.id = p1.id and p1.worksfor=?");
 			p2.setInt(1, professors.get(i));
-			
+			p2.setInt(2, this.id);
 			ResultSet r2 = p2.executeQuery();
 			
 			while(r2.next())
@@ -286,7 +313,7 @@ public class UniversityPage
 				//System.out.println();
 			}
 		}	
-			int cid = insertCourse(conn, id, name, description, professors);
+			int cid = insertCourse(conn, this.id, name, description, professors);
 			if(cid==0)
 			{
 				return;
@@ -328,24 +355,33 @@ public class UniversityPage
 		
 		ResultSet rs = getId.executeQuery();
 		int cid=0;
+		if(!rs.isBeforeFirst())
+		{
+			cid=0;
+		}
 		while(rs.next())
 		{
-			cid=rs.getInt(1)+1;
+			 cid=rs.getInt(1) + 1;
 		}
 		
+		System.out.println("Max cid is "+cid);
 		System.out.println("\n Enter Professor id to assign a professor for this course");
 		Scanner sc = new Scanner(System.in);
 		int pid = sc.nextInt();
+		Scanner sc2 = new Scanner(System.in);
+		System.out.println("Enter course id ");
+		String c_id = sc2.nextLine();
 		
 		if(validateProfessor(professors, pid))
 		{	
 		
-		query="INSERT INTO course( id, name, description, offeredby) VALUES (?, ?, ?, ?)";
+		query="INSERT INTO course( id, name, description, offeredby, cid) VALUES (?, ?, ?, ?, ?)";
 		PreparedStatement insert = con.prepareCall(query);
 		insert.setInt(1, cid);
 		insert.setString(2, name);
 		insert.setString(3, description);
 		insert.setInt(4, id);
+		insert.setString(5, c_id);
 		
 		insert.executeUpdate();
 		System.out.println("Course Successfully added");
@@ -381,31 +417,4 @@ public class UniversityPage
 	}
 	
 	
-	// ONLY FOR UNIT TESTING OF UNIVERSITY FUNCTIONALITY
-	public static void main(String args[]) throws Exception
-	{
-		UniversityPage p = new UniversityPage();
-		
-			 final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-		     final String DB_URL = "jdbc:postgresql://postgres.c9mcz4kq3yti.us-west-2.rds.amazonaws.com:5432/OCMS";
-
-		   // Database credentials
-		    final String USER = "postgres";
-		    final String PASS = "Akshay1!";
-		    
-		    Connection c = null;
-		         Class.forName("org.postgresql.Driver");	         
-		         c = DriverManager.getConnection(DB_URL,USER,PASS);
-		      
-
-		p.buildUniversity(c, 1);
-		
-	//	p.listCourses(c, 1);
-		System.out.println("\n\nAdding a new course");
-	//	p.addCourse(c, 1);
-		
-	//	p.addProfessor(c, 1);
-		
-		p.addP(c, 1);
-	}
 }

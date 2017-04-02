@@ -12,6 +12,9 @@ public class RegisterPage
 	{
 		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
+		
+		while(true)
+		{
 		System.out.println("Enter your choice: \n1) Student \n2) Go Back");
 		int choice = sc.nextInt();
 		
@@ -24,9 +27,11 @@ public class RegisterPage
 			id = registerStudent(con);
 			break;
 		case 2:
-			return;
+			TestConnection tc = new TestConnection();
+			tc.loginRegister(con);
 	    default:
 	    	System.out.println("Sorry you have entered the wrong choice!");
+		}
 		}
 	}
 

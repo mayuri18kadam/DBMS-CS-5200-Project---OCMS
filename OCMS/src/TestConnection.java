@@ -1,7 +1,6 @@
 import java.sql.*;
 import java.util.Scanner;
 
-
 public class TestConnection 
 {
    // JDBC driver name and database URL
@@ -22,28 +21,9 @@ public class TestConnection
 		 Class.forName("org.postgresql.Driver");	         
 		 c = DriverManager.getConnection(DB_URL,USER,PASS);
 		 
-		 while(true)
-		 { 
-		 System.out.println("Enter your choice \n1) Login \n2) Register \n3) Exit \n");
-		 int choice = s.nextInt();
-		 switch(choice)
-		 {
-		 case 1:
-			 LoginPage lPage = new LoginPage();
-			 lPage.login(c);
-		     break;
-		 case 2:
-			 RegisterPage rPage = new RegisterPage();
-			 rPage.register(c);
-		     break;
-		 case 3:
-			 System.out.println("You are exiting the system.");
-			 System.exit(0);
-		 default:
-			 System.out.println("Sorry you have entered the wrong choice!");
-		     } 
-		     }
-		   } catch ( Exception e ) 
+		 loginRegister(c);
+		 
+		 	   } catch ( Exception e ) 
 		   {
 			   System.err.println(e.getClass().getName()+": "+ e.getMessage());
 		       System.exit(0);
@@ -53,4 +33,27 @@ public class TestConnection
 	    	   c.close();
 	       }
 	 }
+   
+   public static void loginRegister(Connection con) throws Exception
+   {
+	   Scanner s = new Scanner(System.in);
+	   System.out.println("Enter your choice \n1) Login \n2) Register \n3) Exit \n");
+		 int choice = s.nextInt();
+		 switch(choice)
+		 {
+		 case 1:
+			 LoginPage lPage = new LoginPage();
+			 lPage.login(con);
+		     break;
+		 case 2:
+			 RegisterPage rPage = new RegisterPage();
+			 rPage.register(con);
+		     break;
+		 case 3:
+			 System.out.println("You are exiting the system.");
+			 System.exit(0);
+		 default:
+			 System.out.println("Sorry you have entered the wrong choice!");
+		     } 
+   }
 }

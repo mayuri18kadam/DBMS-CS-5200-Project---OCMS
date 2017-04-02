@@ -17,7 +17,8 @@ public class LoginPage
 		String ch = sc.nextLine();
 		if(ch.equalsIgnoreCase("Y"))
 		{
-			System.exit(0);
+			TestConnection tc = new TestConnection();
+			tc.loginRegister(con);		
 		}
 		
 			System.out.println("Enter Username: ");
@@ -34,7 +35,8 @@ public class LoginPage
 				if(!rs.isBeforeFirst())
 				{
 					System.out.println("Invalid Login");
-					return;
+					TestConnection tc = new TestConnection();
+					tc.loginRegister(con);
 				}
 				while(rs.next())
 				{
@@ -63,7 +65,7 @@ public class LoginPage
 			}
 			else
 			{
-				AdminPage ap =new  AdminPage ();
+				AdminPage ap =new AdminPage ();
 				ap.start(con);
 			}
 	}

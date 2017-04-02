@@ -91,7 +91,7 @@ public class ProfessorPage
 						case 3: delLectures(c_id);
 						break;
 						case 4: CommonFunctions c = new CommonFunctions();
-								c.viewFollowup(con,c_id,id);
+								c.viewFollowup(con,c_id,id, "Professor", "");
 						break;
 						case 5: start(con, id);
 						break;

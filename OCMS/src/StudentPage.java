@@ -21,7 +21,7 @@ public class StudentPage
 		
 		studName = fetchName(con, id);//Fetches student name
 
-		System.out.println("Welcome"+ studName);
+		System.out.println("Welcome "+ studName);
 		
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter your choice: \n1) View My Courses"
@@ -39,7 +39,8 @@ public class StudentPage
 			break;
 		case 3:
 			System.out.println("You have been signed out!");
-			System.exit(0);
+			TestConnection tc = new TestConnection();
+			tc.loginRegister(con);
 			break;
 		default:
 			System.out.println("Sorry! you have entered the wrong choice!");
@@ -378,7 +379,7 @@ public class StudentPage
 			{
 				System.out.println("\n1) Go Back"
 						+ "\n2) Go to the Home Page \n"
-						+ "2) Sign out\n");
+						+ "3) Sign out\n");
 				int choice = sc.nextInt();
 				
 				switch(choice)
@@ -391,7 +392,9 @@ public class StudentPage
 					break;
 				case 3:
 					System.out.println("You have been signed out!");
-					System.exit(0);
+					TestConnection tc = new TestConnection();
+					tc.loginRegister(con);
+					break;
 				default:
 					System.out.println("Sorry! you have entered the wrong choice!");
 					viewAllCourses(con, id);
@@ -405,7 +408,7 @@ public class StudentPage
 	}
 	
 	// Select student name
-	public String fetchName(Connection con, int id) throws SQLException 
+	public String fetchName(Connection con, int id) throws Exception 
 	{
 		String sName = "Select p.name from person p, student s "
 				+ "where s.id=p.id and s.id = ?;";
@@ -417,7 +420,8 @@ public class StudentPage
 		if(!rs.isBeforeFirst())
 		{
 			System.out.println("You have been signed out.");
-			System.exit(0);
+			TestConnection tc = new TestConnection();
+			tc.loginRegister(con);
 		}
 		else
 		{
@@ -447,7 +451,8 @@ public class StudentPage
 			break;
 		case 3:
 			System.out.println("You have been signed out!");
-			System.exit(0);
+			TestConnection tc = new TestConnection();
+			tc.loginRegister(con);
 		default:
 			System.out.println("Sorry! you have entered the wrong choice!");
 			navigation(con,id);
@@ -526,7 +531,7 @@ public class StudentPage
 				+ ". You can now access the course materials.\n");
 				System.out.println("1) Start Learning \n2) Go Back"
 						+ "\n3) Go to the Home Page "
-						+ "\n3) Sign Out");
+						+ "\n4) Sign Out");
 				
 				int ch = sc.nextInt();
 				
@@ -543,7 +548,8 @@ public class StudentPage
 					break;
 				case 4:
 					System.out.println("You have been signed out!");
-					System.exit(0);
+					TestConnection tc = new TestConnection();
+					tc.loginRegister(con);
 					break;
 				default:
 					System.out.println("Sorry! you have entered the wrong choice!");
@@ -558,21 +564,22 @@ public class StudentPage
 		} else if(ans.equals("n") || ans.equals("N"))
 			{
 				System.out.println("\n1) Go Back"
-						+ "\n2)Go to the Home Page \n"
-						+ "2) Sign out\n");
+						+ "\n2) Go to the Home Page \n"
+						+ "3) Sign out\n");
 				int choice = sc.nextInt();
 				
 				switch(choice)
 				{
 				case 1:
-					viewAllMyCourses(con, pcourseId);
+					viewAllCourses(con, pcourseId);
 					break;
 				case 2:
 					start(con, id);
 					break;
 				case 3:
 					System.out.println("You have been signed out!");
-					System.exit(0);
+					TestConnection tc = new TestConnection();
+					tc.loginRegister(con);
 				default:
 					System.out.println("Sorry! you have entered the wrong choice!");
 				}
@@ -602,7 +609,7 @@ public class StudentPage
 			break;
 		case 2:
 			CommonFunctions c = new CommonFunctions();
-			c.viewFollowup(con, pcourseId, id);
+			c.viewFollowup(con, pcourseId, id, "Student", cid);
 			break;
 		default:
 			System.out.println("Invalid input");

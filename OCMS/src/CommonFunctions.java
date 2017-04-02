@@ -3,6 +3,8 @@ import java.util.*;
 
 public class CommonFunctions 
 {
+	String cond=null;
+	
 	String[] splitAddress(String address)
 	{
 		address= address.substring(1, address.length()-1);
@@ -13,8 +15,9 @@ public class CommonFunctions
 		
 	}
 	
-	void viewFollowup(Connection con, int c_id, int p_id) throws Exception 
+	void viewFollowup(Connection con, int c_id, int p_id, String cond, String cid) throws Exception 
 	{
+		this.cond = cond;
 		@SuppressWarnings("resource")
 		Scanner st = new Scanner(System.in);
 		CommonFunctions c = new CommonFunctions();
@@ -79,7 +82,7 @@ public class CommonFunctions
 					{
 						while(rs.next())
 						{
-							System.out.print(rs.getString("comments")+"\nReplied by");
+							System.out.print(rs.getString("comments")+"\nReplied by ");
 							System.out.println(rs.getString("pname")+"   "+whoPosted+"\n");
 						}
 					}
@@ -88,7 +91,7 @@ public class CommonFunctions
 						
 			while(true)
 			{
-			System.out.println("\nDo you want to \n1) Add new post \n2) Add comment to existing post \n3)exit");
+			System.out.println("\nDo you want to \n1) Add new post \n2) Add comment to existing post \n3) Go Back");
 			int choice = st.nextInt();
 			switch(choice)
 			{
@@ -100,15 +103,26 @@ public class CommonFunctions
 					if(postIdMapping.containsKey(input))
 					{
 						addpostFollowup(con,c_id,postIdMapping.get(input),p_id);
-					} else
-					{
+					} 
+					else
+					{						
 						return;
 					}					
 				break;
 			case 3:
-				return;
+				if(cond.equalsIgnoreCase("Student"))
+				{
+					StudentPage s = new StudentPage();
+					s.courseHome(con, p_id, cid, c_id);;
+				}
+				else
+				{
+					ProfessorPage p = new ProfessorPage();
+					p.start(con, p_id);
+				}
+//				return;
 			default: System.out.println("You have entered the wrong option!");
-				return;
+//				return;
 			}
 			}
 		}
@@ -148,12 +162,12 @@ public class CommonFunctions
 			if(rs_insFollowup<=0)
 			{
 				System.out.println("Follow up could not be added..!s");
-				viewFollowup(con, c_id, p_id);
+				viewFollowup(con, c_id, p_id, cond, "");
 			}
 			else
 			{
 				System.out.println("\nYou have added your reply successfully.");
-				viewFollowup(con, c_id, p_id);
+				viewFollowup(con, c_id, p_id, cond, "");
 			}
 		}
 		finally
@@ -200,25 +214,11 @@ public class CommonFunctions
 			else
 			{
 				System.out.println("You have added post successfully.");
-				viewFollowup(con, c_id, p_id);
+				viewFollowup(con, c_id, p_id, cond, "");
 			}
-			
-//			insFollowup.setInt(1, f_id2);
-//			insFollowup.setString(2, comment);
-//			insFollowup.setInt(3, f_id);
-//			int rs_insFollowup = insFollowup.executeUpdate();
-//			if(rs_insFollowup<=0)
-//			{
-//				System.out.println("post could not be added..!");
-//			}
-//			else
-//			{
-//				System.out.println("You have added post successfully.");
-//			}
 		}
 		finally
 		{
-			//getID.close();
 			insForum.close();
 		}				
 	}

@@ -221,7 +221,7 @@ public class UniversityPage
 		}
 		else
 		{
-			System.out.println(this.id);
+			//System.out.println(this.id);
 			System.out.println("Assign a designation for a professor, Enter one of ");
 			System.out.println("Dean,Professor,Associate_Professor,Lecturer,Visiting Scholar,Director,Associate Director,TA,RA,GA,Part time faculty,Contractor");
 			String designtion = s.nextLine();
@@ -365,7 +365,7 @@ public class UniversityPage
 			 cid=rs.getInt(1) + 1;
 		}
 		
-		System.out.println("Max cid is "+cid);
+		//System.out.println("Max cid is "+cid);
 		System.out.println("\n Enter Professor id to assign a professor for this course");
 		Scanner sc = new Scanner(System.in);
 		int pid = sc.nextInt();

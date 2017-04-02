@@ -147,11 +147,12 @@ public class CommonFunctions
 			int rs_insFollowup = insFollowup.executeUpdate();
 			if(rs_insFollowup<=0)
 			{
-				System.out.println("Follow up could not be added..!");
+				System.out.println("Follow up could not be added..!s");
+				viewFollowup(con, c_id, p_id);
 			}
 			else
 			{
-				System.out.println("/nYou have added your reply successfully.");
+				System.out.println("\nYou have added your reply successfully.");
 				viewFollowup(con, c_id, p_id);
 			}
 		}

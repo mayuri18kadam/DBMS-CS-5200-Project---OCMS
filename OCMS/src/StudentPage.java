@@ -138,7 +138,7 @@ public class StudentPage
 					}
 
 				} else {
-					System.out.println("Invalid option");
+					System.out.println("Invalid course number");
 					System.out.println("Please enter the valid course number from below");
 					viewAllMyCourses(con, id);
 				}

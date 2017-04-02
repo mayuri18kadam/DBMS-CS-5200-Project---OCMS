@@ -16,7 +16,6 @@ public class StudentPage
 	{
 		this.id = id;
 		
-		System.out.println(id);
 		Scanner sc = new Scanner(System.in);
 		System.out.println("Enter your choice: \n1) View My Courses"
 				+ " \n2) View All Courses"
@@ -71,11 +70,14 @@ public class StudentPage
 	}
 		
 	public void viewAllMyCourses(Connection con, int id) throws Exception 
-	{				
+	{	
+		TreeMap<Integer, Integer> courseIdMapping = new TreeMap<Integer, Integer>();
 		fetchName(con,id);
+		int i=1;
+
 		Scanner sc = new Scanner(System.in);
 		
-		String myCourse = "Select c.name as courseName, u.name as univName, sc.status as scStatus"
+		String myCourse = "Select c.name as courseName, c.id as pcourseId, u.name as univName, sc.status as scStatus"
 				+ " from course c, university u, student s, studentcourse sc "
 				+ "where s.id = ? and sc.takenby = s.id and sc.takes = c.id and c.offeredby = u.id;";
 		PreparedStatement ps = null;
@@ -95,20 +97,59 @@ public class StudentPage
 			
 			while(rs.next())
 			{				
-				System.out.println(rs.getString("courseName") + " offered by " + rs.getString("univName") +"\tstatus- "+ rs.getString("scStatus"));
+				System.out.println(i+". "+rs.getString("courseName") + " offered by " + rs.getString("univName") +"\tstatus- "+ rs.getString("scStatus"));
+				courseIdMapping.put(i, rs.getInt("pcourseId"));
+				i++;
+			}
+			/*for(Map.Entry<Integer,Integer> entry : courseIdMapping.entrySet()) {
+			  Integer key = entry.getKey();
+			  Integer value = entry.getValue();
+	
+			  System.out.println(key + " => " + value);
+			}	*/
+			
+			System.out.println("Do you want to go to any of your Course Home Page?");
+			String ch = sc.next();
+			
+			if(ch.equals("y") || ch.equals("Y"))
+			{
+				System.out.println("Press Course Number to go to that Course Home Page");
+				int cnum = sc.nextInt();
 				
+				PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
+						+ "where c.id=?;");
+				ps4.setInt(1, courseIdMapping.get(cnum));
+				
+				ResultSet rs3 = ps4.executeQuery();
+				
+				if(rs3.next())
+				{
+					if(courseIdMapping.containsKey(cnum))
+					{
+						courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));					
+					} else
+					{
+						System.out.println("Invalid option");
+						System.out.println("Please enter the valid course number from below");
+						viewAllMyCourses(con, id);
+					}
+				}
 			}
 		}
+		
 		navigation(con,id);
 		sc.close();
 		}
 		
 	public void viewActiveCourses(Connection con, int id) throws Exception 
 	{
+		TreeMap<Integer, Integer> courseIdMapping = new TreeMap<Integer, Integer>();
 		fetchName(con,id);
+		int i=1;
+		String cid=null;
 		Scanner sc = new Scanner(System.in);
 		
-		String activeCourse = "Select c.name as courseName, u.name as univName, sc.status as scStatus"
+		String activeCourse = "Select c.name as courseName, c.id as pcourseId, c.cid as cid, u.name as univName, sc.status as scStatus"
 				+ " from course c, university u, student s, studentcourse sc "
 				+ "where s.id = ? and sc.takenby = s.id and sc.takes = c.id and c.offeredby = u.id and sc.status=?;";
 		PreparedStatement ps = null;
@@ -129,8 +170,38 @@ public class StudentPage
 			
 			while(rs.next())
 			{				
-				System.out.println(rs.getString("courseName") + " offered by " + rs.getString("univName") + "\tstatus- " + rs.getString("scStatus"));
+				System.out.println(i+". "+rs.getString("courseName") + " offered by " + rs.getString("univName") + "\tstatus- " + rs.getString("scStatus"));
+				courseIdMapping.put(i, rs.getInt("pcourseId"));
+				cid = rs.getString("cid");
+				i++;
+			}
+			
+			System.out.println("Do you want to go to any of your Course Home Page?");
+			String ch = sc.next();
+			
+			if(ch.equals("y") || ch.equals("Y"))
+			{
+				System.out.println("Press Course Number to go to that Course Home Page");
+				int cnum = sc.nextInt();
 				
+				PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
+						+ "where c.id=?;");
+				ps4.setInt(1, courseIdMapping.get(cnum));
+				
+				ResultSet rs3 = ps4.executeQuery();
+				
+				if(rs3.next())
+				{
+					if(courseIdMapping.containsKey(cnum))
+					{
+						courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));
+					} else
+					{
+						System.out.println("Invalid option");
+						System.out.println("Please enter the valid course number from below");
+						viewAllMyCourses(con, id);
+					}
+				}
 			}
 		}
 		navigation(con,id);
@@ -139,10 +210,13 @@ public class StudentPage
 	
 	public void viewCompletedCourses(Connection con, int id) throws Exception 
 	{
+		TreeMap<Integer, Integer> courseIdMapping = new TreeMap<Integer, Integer>();
 		fetchName(con,id);
+		int i=1;
+		String cid=null;
 		Scanner sc = new Scanner(System.in);
 		
-		String completedCourse = "Select c.name as courseName, u.name as univName, sc.status as scStatus"
+		String completedCourse = "Select c.name as courseName, c.id as pcourseId, u.name as univName, sc.status as scStatus"
 				+ " from course c, university u, student s, studentcourse sc "
 				+ "where s.id = ? and sc.takenby = s.id and sc.takes = c.id and c.offeredby = u.id and sc.status=?;";
 		PreparedStatement ps = null;
@@ -162,9 +236,39 @@ public class StudentPage
 			System.out.println("My Completed Courses:");
 			
 			while(rs.next())
-			{				
-				System.out.println(rs.getString("courseName") + " offered by " + rs.getString("univName") + "\tstatus- " + rs.getString("scStatus"));
+			{		
+				System.out.println(i+". "+rs.getString("courseName") + " offered by " + rs.getString("univName") + "\tstatus- " + rs.getString("scStatus"));
+				courseIdMapping.put(i, rs.getInt("pcourseId"));
+				i++;
+			}
+			
+			System.out.println("Do you want to go to any of your Course Home Page?");
+			String ch = sc.next();
+			
+			if(ch.equals("y") || ch.equals("Y"))
+			{
+				System.out.println("Press Course Number to go to that Course Home Page");
+				int cnum = sc.nextInt();
 				
+				PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
+						+ "where c.id=?;");
+				ps4.setInt(1, courseIdMapping.get(cnum));
+				
+				ResultSet rs3 = ps4.executeQuery();
+				
+				if(rs3.next())
+				{
+				
+					if(courseIdMapping.containsKey(cnum))
+					{
+						courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));
+					} else
+					{
+						System.out.println("Invalid option");
+						System.out.println("Please enter the valid course number from below");
+						viewAllMyCourses(con, id);
+					}
+				}
 			}
 		}
 		navigation(con,id);
@@ -421,9 +525,8 @@ public class StudentPage
 			viewLectrsChoice(con, cid, id, pcourseId, lectrsMapping);
 			break;
 		case 2:
-		//	discussionForum(con, id, cid, pcourseId);
 			CommonFunctions c = new CommonFunctions();
-			c.viewFollowup(con, 2, id);
+			c.viewFollowup(con, pcourseId, id);
 			break;
 		default:
 			System.out.println("Invalid input");
@@ -432,43 +535,6 @@ public class StudentPage
 			break;
 		}
 				
-	}
-	
-	public void discussionForum(Connection con, int id, String cid, int pcourseId)
-	{
-		Scanner sc = new Scanner(System.in);
-		System.out.println("\nDescription");
-		System.out.println("Welcome to the course discussion forums! "
-				+ "Ask questions, debate ideas, and find classmates who share your goals.");
-		System.out.println("1) View Discussion Forums\n2) Create a new thread");
-		int ch = sc.nextInt();
-		
-		switch(ch)
-		{
-		case 1:
-			viewDiscussionForum(con, id, cid, pcourseId);
-			break;
-		case 2:
-			createThread(con, id, cid, pcourseId);
-			break;
-		default:
-			System.out.println("Invalid input");
-			System.out.println("Please choose from the below options");
-			discussionForum(con, id, cid, pcourseId);
-			break;
-		}
-	}
-	
-	public void viewDiscussionForum(Connection con, int id, String cid, int pcourseId)
-	{
-		Scanner sc = new Scanner(System.in);
-		System.out.println("Discussion Forums");
-		//String viewdf = "Select f.post, p.name, "
-	}
-	
-	public void createThread(Connection con, int id, String cid, int pcourseId)
-	{
-		System.out.println("Create a new thread");
 	}
 	
  	public int fetchLecture(TreeMap<Integer,Integer> lectrsMapping)
@@ -518,7 +584,7 @@ public class StudentPage
 		
 		if(!rs1.isBeforeFirst())
 		{
-			System.out.println("There are no lectures added in this course.");
+			System.out.println("\n\nThere are no lectures added in this course.");
 		}
 		else
 		{
@@ -579,14 +645,7 @@ public class StudentPage
 		{
 			System.out.println("\nEnter the lecture number which you would want to watch/read:");
 			
-			int lid = fetchLecture(lectrsMapping);
-			
-			/*for(Map.Entry<Integer,Integer> entry : lectrsMapping.entrySet()) {
-			  Integer key = entry.getKey();
-			  Integer value = entry.getValue();
-	
-			  System.out.println(key + " => " + value);
-			}*/		
+			int lid = fetchLecture(lectrsMapping);	
 			
 			String lectrViewed = "Insert into studentlecture(views,viewedby)"
 					+ "select ?,?"
@@ -621,32 +680,5 @@ public class StudentPage
         JOptionPane.showMessageDialog(null, infoMessage, "InfoBox: " + titleBar, JOptionPane.INFORMATION_MESSAGE);
     }
 	
-	// ONLY FOR UNIT TESTING OF STUDENTS FUNCTIONALITY
-//		public static void main(String args[]) throws Exception
-//		{
-//			StudentPage sp = new StudentPage();
-//			
-//				 final String JDBC_DRIVER = "com.mysql.jdbc.Driver";  
-//			     final String DB_URL = "jdbc:postgresql://postgres.c9mcz4kq3yti.us-west-2.rds.amazonaws.com:5432/OCMS";
-//
-//			   // Database credentials
-//			    final String USER = "postgres";
-//			    final String PASS = "Akshay1!";
-//			    
-//			    Connection c = null;
-//			    Class.forName("org.postgresql.Driver");	         
-//			    c = DriverManager.getConnection(DB_URL,USER,PASS);
-//			     
-//			//sp.start(c, 5);
-//			  //sp.viewAllCourses(c, 1);
-//			 //sp.viewMyCourses(c, 1);
-//			  //sp.gotoCourse(c, 3, "CS 5320");
-//			    //sp.viewLectures(c, 4, "CS 5320", 2, "studLectr");
-//			    //sp.viewLectures(c, 4, "CS 5320", 2, "allLectrs");
-//			    sp.courseHome(c, 4, "CS 5320", 2);
-//			
-//			
-//		}
-
 }
 

@@ -56,10 +56,15 @@ public class LoginPage
 				ProfessorPage pPage = new ProfessorPage();
 	        	pPage.start(con, id);
 			}
-			else
+			else if(type.equalsIgnoreCase("University"))
 			{
 				UniversityPage uPage = new UniversityPage();
 	        	uPage.start(con, id);
+			}
+			else
+			{
+				AdminPage ap =new  AdminPage ();
+				ap.start(con);
 			}
 	}
 }

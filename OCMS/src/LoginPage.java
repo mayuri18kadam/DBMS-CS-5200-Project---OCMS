@@ -13,6 +13,13 @@ public class LoginPage
 		String type = "";
 		int id=0;
 		
+		System.out.println("Do you want to exit?(Y/N)");
+		String ch = sc.nextLine();
+		if(ch.equalsIgnoreCase("Y"))
+		{
+			System.exit(0);
+		}
+		
 			System.out.println("Enter Username: ");
 			user=sc.next();
 			System.out.println("Enter Password: ");

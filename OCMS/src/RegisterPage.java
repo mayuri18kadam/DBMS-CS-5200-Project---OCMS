@@ -12,7 +12,7 @@ public class RegisterPage
 	{
 		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
-		System.out.println("Enter your choice: \n1) Student \n2) Professor \n3) University");
+		System.out.println("Enter your choice: \n1) Student \n2) University \n3) Go Back");
 		int choice = sc.nextInt();
 		
 		@SuppressWarnings("unused")
@@ -24,18 +24,18 @@ public class RegisterPage
 			id = registerStudent(con);
 			break;
 		case 2:
-		//	id = registerProfessor(con);
-			break;
-		case 3:
 			id = registerUniversity(con);
 			break;
-		default: return;
-//			System.out.println("Sorry you have entered the wrong choice!");
+		case 3:
+			return;
+	    default:
+	    	System.out.println("Sorry you have entered the wrong choice!");
 		}
 	}
 
 	private int registerUniversity(Connection con) throws Exception 
 	{
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		int id=0;
 		PreparedStatement getID = con.prepareStatement("Select max(id) from login");
@@ -108,7 +108,7 @@ public class RegisterPage
 			getID.close();
 			insLogin.close();
 			insUniv.close();
-			sc.close();
+//			sc.close();
 		}
 		return id;		
 	}
@@ -201,9 +201,10 @@ public class RegisterPage
 			}
 			System.out.println("Enter designation: ");
 			
-			Scanner sc1 = new Scanner(System.in);
+//			@SuppressWarnings("resource")
+//			Scanner sc1 = new Scanner(System.in);
 			
-			String desg = sc1.nextLine();
+			String desg = sc.nextLine();
 			System.out.println();
 			
 			insProf.setInt(1, id);
@@ -238,6 +239,7 @@ public class RegisterPage
 
 	private int registerStudent(Connection con) throws Exception
 	{	
+		@SuppressWarnings("resource")
 		Scanner sc = new Scanner(System.in);
 		int id=0;
 		PreparedStatement getID = con.prepareStatement("Select max(id) from login");
@@ -326,7 +328,7 @@ public class RegisterPage
 			insLogin.close();
 			insPerson.close();
 			insStu.close();
-			sc.close();
+//			sc.close();
 		}
 		return id;		
 	}

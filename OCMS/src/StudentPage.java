@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.*;
 import javax.swing.JOptionPane;
 
+import com.sun.media.jfxmedia.events.VideoFrameRateListener;
+
 public class StudentPage 
 {
 	//Connection con = null;
@@ -47,7 +49,8 @@ public class StudentPage
 		System.out.println("Which of your courses do you want to see?"
 				+ " : \n1) View All My Courses"
 				+ " \n2) View Active Courses"
-				+ " \n3) View Completed Courses \n");
+				+ " \n3) View Completed Courses \n"
+				+ "\n\n4) Go Back\n");
 		int choice = sc.nextInt();
 				
 		switch(choice)
@@ -61,8 +64,12 @@ public class StudentPage
 		case 3:
 			viewCompletedCourses(con,id);
 			break;
+		case 4:
+			start(con, id);
+			break;
 		default:
-			System.out.println("Sorry! you have entered the wrong choice!/n");
+			System.out.println("Sorry! you have entered the wrong choice!/n Enter the correct"
+					+ "option from below");
 			viewMyCourses(con,id);
 		}
 		
@@ -101,12 +108,6 @@ public class StudentPage
 				courseIdMapping.put(i, rs.getInt("pcourseId"));
 				i++;
 			}
-			/*for(Map.Entry<Integer,Integer> entry : courseIdMapping.entrySet()) {
-			  Integer key = entry.getKey();
-			  Integer value = entry.getValue();
-	
-			  System.out.println(key + " => " + value);
-			}	*/
 			
 			System.out.println("Do you want to go to any of your Course Home Page?");
 			String ch = sc.next();
@@ -116,24 +117,39 @@ public class StudentPage
 				System.out.println("Press Course Number to go to that Course Home Page");
 				int cnum = sc.nextInt();
 				
-				PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
-						+ "where c.id=?;");
-				ps4.setInt(1, courseIdMapping.get(cnum));
 				
-				ResultSet rs3 = ps4.executeQuery();
-				
-				if(rs3.next())
+				if(courseIdMapping.containsKey(cnum))
 				{
-					if(courseIdMapping.containsKey(cnum))
+					PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
+							+ "where c.id=?;");
+					ps4.setInt(1, courseIdMapping.get(cnum));
+					ResultSet rs3 = ps4.executeQuery();
+					
+					if(!rs3.isBeforeFirst())
 					{
-						courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));					
+						System.out.println("\nThere is no course of input course number!");
+						return;
 					} else
-					{
-						System.out.println("Invalid option");
-						System.out.println("Please enter the valid course number from below");
-						viewAllMyCourses(con, id);
+					{					
+						while(rs3.next())
+						{
+							courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));
+						}
 					}
+
+				} else {
+					System.out.println("Invalid option");
+					System.out.println("Please enter the valid course number from below");
+					viewAllMyCourses(con, id);
 				}
+			} else if(ch.equals("n") || ch.equals("N"))
+			{
+				navigation(con,id);
+				
+			} else 
+			{
+				System.out.println("Invalid input");
+				viewAllMyCourses(con, id);
 			}
 		}
 		
@@ -176,34 +192,49 @@ public class StudentPage
 				i++;
 			}
 			
-			System.out.println("Do you want to go to any of your Course Home Page?");
+			System.out.println("Do you want to go to any of your Course Home Page?[y/n]");
 			String ch = sc.next();
 			
 			if(ch.equals("y") || ch.equals("Y"))
 			{
 				System.out.println("Press Course Number to go to that Course Home Page");
 				int cnum = sc.nextInt();
-				
-				PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
-						+ "where c.id=?;");
-				ps4.setInt(1, courseIdMapping.get(cnum));
-				
-				ResultSet rs3 = ps4.executeQuery();
-				
-				if(rs3.next())
+								
+				if(courseIdMapping.containsKey(cnum))
 				{
-					if(courseIdMapping.containsKey(cnum))
+					PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
+							+ "where c.id=?;");
+					ps4.setInt(1, courseIdMapping.get(cnum));
+					ResultSet rs3 = ps4.executeQuery();
+					
+					if(!rs3.isBeforeFirst())
 					{
-						courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));
+						System.out.println("\nThere is no course of input course number!");
+						return;
 					} else
-					{
-						System.out.println("Invalid option");
-						System.out.println("Please enter the valid course number from below");
-						viewAllMyCourses(con, id);
+					{					
+						while(rs3.next())
+						{
+							courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));
+						}
 					}
+
+				} else {
+					System.out.println("Invalid option");
+					System.out.println("Please enter the valid course number from below");
+					viewAllMyCourses(con, id);
 				}
+			} else if(ch.equals("n") || ch.equals("N"))
+			{
+				navigation(con,id);
+				
+			} else 
+			{
+				System.out.println("Invalid input");
+				viewAllMyCourses(con, id);
 			}
 		}
+		
 		navigation(con,id);
 		sc.close();
 	}
@@ -250,27 +281,42 @@ public class StudentPage
 				System.out.println("Press Course Number to go to that Course Home Page");
 				int cnum = sc.nextInt();
 				
-				PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
-						+ "where c.id=?;");
-				ps4.setInt(1, courseIdMapping.get(cnum));
 				
-				ResultSet rs3 = ps4.executeQuery();
-				
-				if(rs3.next())
+				if(courseIdMapping.containsKey(cnum))
 				{
-				
-					if(courseIdMapping.containsKey(cnum))
+					PreparedStatement ps4=con.prepareStatement("Select c.cid as cid from course c "
+							+ "where c.id=?;");
+					ps4.setInt(1, courseIdMapping.get(cnum));
+					ResultSet rs3 = ps4.executeQuery();
+					
+					if(!rs3.isBeforeFirst())
 					{
-						courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));
+						System.out.println("\nThere is no course of input course number!");
+						return;
 					} else
-					{
-						System.out.println("Invalid option");
-						System.out.println("Please enter the valid course number from below");
-						viewAllMyCourses(con, id);
+					{					
+						while(rs3.next())
+						{
+							courseHome(con, id, rs3.getString("cid"), courseIdMapping.get(cnum));
+						}
 					}
+
+				} else {
+					System.out.println("Invalid option");
+					System.out.println("Please enter the valid course number from below");
+					viewAllMyCourses(con, id);
 				}
+			} else if(ch.equals("n") || ch.equals("N"))
+			{
+				navigation(con,id);
+				
+			} else 
+			{
+				System.out.println("Invalid input");
+				viewAllMyCourses(con, id);
 			}
 		}
+		
 		navigation(con,id);
 		sc.close();
 	}
@@ -314,16 +360,20 @@ public class StudentPage
 			gotoCourse(con,id,cid);
 		} else if(ans.equals("n") || ans.equals("N"))
 			{
-				System.out.println("\n1) Go to the Home Page \n"
+				System.out.println("\n1) Go Back"
+						+ "\n2) Go to the Home Page \n"
 						+ "2) Sign out\n");
 				int choice = sc.nextInt();
 				
 				switch(choice)
 				{
 				case 1:
-					start(con, id);
+					viewAllCourses(con, id);
 					break;
 				case 2:
+					start(con, id);
+					break;
+				case 3:
 					System.out.println("You have been signed out!");
 					System.exit(0);
 				default:
@@ -427,12 +477,10 @@ public class StudentPage
 				}
 				
 				TreeMap<Integer, Integer> lectrsMapping = new TreeMap<Integer, Integer>();
-				lectrsMapping = viewLectures(con,id,cid,pcourseId,"allLectrs");
-				//viewLectures(con,id,cid,pcourseId,"allLectrs");
-						
+				lectrsMapping = viewLectures(con,id,cid,pcourseId,"allLectrs");						
 			}			
 		}
-		//System.out.println(pcourseId);
+		
 		System.out.println("\nDo you want to enroll now to this course?[y/n]");
 		String ans = sc.next();
 		
@@ -455,9 +503,10 @@ public class StudentPage
 			
 			if(count>0)
 			{
-				System.out.println("Welcome to the course " + courseName
+				System.out.println("\nWelcome to the course " + courseName
 				+ ". You can now access the course materials.\n");
-				System.out.println("1) Start Learning \n2) Go to the Home Page "
+				System.out.println("1) Start Learning \n2) Go Back"
+						+ "\n3) Go to the Home Page "
 						+ "\n3) Sign Out");
 				
 				int ch = sc.nextInt();
@@ -468,14 +517,18 @@ public class StudentPage
 					courseHome(con, id, cid, pcourseId);
 					break;
 				case 2:
-					start(con, id);
+					viewAllMyCourses(con, pcourseId);
 					break;
 				case 3:
+					start(con, id);
+					break;
+				case 4:
 					System.out.println("You have been signed out!");
 					System.exit(0);
 					break;
 				default:
 					System.out.println("Sorry! you have entered the wrong choice!");
+					gotoCourse(con, pcourseId, cid);
 				}
 			} else
 			{
@@ -485,16 +538,20 @@ public class StudentPage
 			
 		} else if(ans.equals("n") || ans.equals("N"))
 			{
-				System.out.println("\n1) Go to the Home Page \n"
+				System.out.println("\n1) Go Back"
+						+ "\n2)Go to the Home Page \n"
 						+ "2) Sign out\n");
 				int choice = sc.nextInt();
 				
 				switch(choice)
 				{
 				case 1:
-					start(con, id);
+					viewAllMyCourses(con, pcourseId);
 					break;
 				case 2:
+					start(con, id);
+					break;
+				case 3:
 					System.out.println("You have been signed out!");
 					System.exit(0);
 				default:
@@ -504,6 +561,7 @@ public class StudentPage
 			} else
 			{
 				System.out.println("Invalid input.");
+				gotoCourse(con, pcourseId, cid);
 			}
 
 		sc.close();
@@ -513,7 +571,8 @@ public class StudentPage
 	public void courseHome(Connection con, int id, String cid, int pcourseId) throws Exception
 	{		
 		Scanner sc = new Scanner(System.in);
-		System.out.println("\nCourse Home\n");
+		System.out.println("\nCourse Home");
+		System.out.println(cid+"\n");
 		System.out.println("1) View Lectures\n2) Discussion Forums");
 		int ch = sc.nextInt();
 		
@@ -638,7 +697,7 @@ public class StudentPage
 	public void viewLectrsChoice(Connection con, String cid, int id, int pcourseId, TreeMap<Integer, Integer> lectrsMapping) throws Exception
 	{
 		Scanner sc = new Scanner(System.in);
-		System.out.println("Do you want to view lectures?[y,n]");
+		System.out.println("Do you want to view lectures?[y/n]");
 		String ch = sc.next();
 		
 		if(ch.equals("y") || ch.equals("Y"))
@@ -670,7 +729,12 @@ public class StudentPage
 			courseHome(con, id, cid, pcourseId);
 		} else if(ch.equals("n") || ch.equals("N"))
 		{
-			navigation(con, id);
+			courseHome(con, id, cid, pcourseId);
+		} else
+		{
+			System.out.println("Invalid input");
+			System.out.println("Enter the correct input");
+			viewLectrsChoice(con, cid, id, pcourseId, lectrsMapping);
 		}
 		sc.close();
 	}

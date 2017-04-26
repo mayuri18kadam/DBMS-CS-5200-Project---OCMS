@@ -597,7 +597,7 @@ public class StudentPage
 		Scanner sc = new Scanner(System.in);
 		System.out.println("\nCourse Home");
 		System.out.println(cid+"\n");
-		System.out.println("1) View Lectures\n2) Discussion Forums");
+		System.out.println("1) View Lectures\n2) Discussion Forums\n3) Back\n4) Sign out");
 		int ch = sc.nextInt();
 		
 		switch(ch)
@@ -610,6 +610,14 @@ public class StudentPage
 		case 2:
 			CommonFunctions c = new CommonFunctions();
 			c.viewFollowup(con, pcourseId, id, "Student", cid);
+			break;
+		case 3:
+			viewMyCourses(con,id);
+			break;
+		case 4:
+			System.out.println("You have been signed out!");
+			TestConnection tc = new TestConnection();
+			tc.loginRegister(con);
 			break;
 		default:
 			System.out.println("Invalid input");

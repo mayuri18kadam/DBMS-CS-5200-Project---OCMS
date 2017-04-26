@@ -222,9 +222,14 @@ public class UniversityPage
 		else
 		{
 			//System.out.println(this.id);
+			Scanner tre = new Scanner(System.in);
 			System.out.println("Assign a designation for a professor, Enter one of ");
 			System.out.println("Dean,Professor,Associate_Professor,Lecturer,Visiting Scholar,Director,Associate Director,TA,RA,GA,Part time faculty,Contractor");
-			String designtion = s.nextLine();
+			
+			//String designtion = "Professor";
+			 String designtion = tre.next();
+			
+			//System.out.println("Designation is "+ design);
 			
 			PreparedStatement p = conn.prepareStatement("INSERT INTO public.professor( id, worksfor, designation) VALUES (?, ?, CAST(? AS designation));");
 			
@@ -509,7 +514,9 @@ public class UniversityPage
 //			@SuppressWarnings("resource")
 //			Scanner sc1 = new Scanner(System.in);
 			
-			String desg = sc.nextLine();
+			Scanner sccc = new Scanner(System.in);
+			
+			String desg = sccc.nextLine();
 			System.out.println();
 			
 			insProf.setInt(1, id);

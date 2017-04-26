@@ -3,6 +3,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.Scanner;
 
+import sun.util.logging.resources.logging_pt_BR;
+
 public class AdminPage 
 {
 
@@ -23,7 +25,8 @@ public class AdminPage
 				break;
 				
 			case 2:
-				return;
+				TestConnection tc = new TestConnection();
+				tc.loginRegister(con);
 			}
 			
 		}
@@ -68,7 +71,7 @@ public class AdminPage
 				System.out.println("You have created your Login information.");
 			}
 			
-			System.out.println("Enter name as Firstname  MiddleName LastName: ");
+			System.out.println("Enter name of Univerity");
 			String name = sc.nextLine();
 			System.out.println("Enter Street: ");
 			String street = sc.nextLine();

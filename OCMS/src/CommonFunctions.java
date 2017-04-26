@@ -41,7 +41,7 @@ public class CommonFunctions
 			if(!rs_viewPost.isBeforeFirst())
 			{
 				System.out.println("\nThere are no posts added for this course!");
-				return;
+//				return;
 			} else
 			{
 				while(rs_viewPost.next())
